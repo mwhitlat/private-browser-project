@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Browser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="browser-container">
+        <!-- Browser Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button id="backBtn" class="nav-btn" title="Go Back">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <button id="forwardBtn" class="nav-btn" title="Go Forward">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                    </svg>
+                </button>
+                <button id="reloadBtn" class="nav-btn" title="Reload">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="address-bar-container">
+                <div class="address-bar">
+                    <div class="security-indicator" id="securityIndicator" title="Connection Security">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                        </svg>
+                    </div>
+                    <input type="text" id="addressBar" placeholder="Search or enter address" />
+                    <div class="privacy-indicator" id="privacyIndicator" title="Privacy Protection Active">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="toolbar-right">
+                <button id="privacyBtn" class="nav-btn" title="Privacy Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </button>
+                <button id="newTabBtn" class="nav-btn" title="New Tab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <div class="tabs" id="tabs">
+                <div class="tab active" data-tab-id="1">
+                    <span class="tab-title">New Tab</span>
+                    <button class="tab-close" title="Close Tab">×</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Web Content Area -->
+        <div class="content-area">
+            <!-- Webviews will be created dynamically -->
+        </div>
+        
+        <!-- Privacy Settings Modal -->
+        <div id="privacyModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Privacy Settings</h2>
+                    <button class="modal-close" id="closePrivacyModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <h3>Tracking Protection</h3>
+                        <label class="setting-item">
+                            <input type="checkbox" id="blockTrackers" checked>
+                            <span class="setting-label">Block trackers</span>
+                        </label>
+                        <label class="setting-item">
+                            <input type="checkbox" id="blockAds" checked>
+                            <span class="setting-label">Block ads</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h3>Privacy Features</h3>
+                        <label class="setting-item">
+                            <input type="checkbox" id="disableWebRTC" checked>
+                            <span class="setting-label">Disable WebRTC (prevents IP leaks)</span>
+                        </label>
+                        <label class="setting-item">
+                            <input type="checkbox" id="disableGeolocation" checked>
+                            <span class="setting-label">Disable geolocation</span>
+                        </label>
+                        <label class="setting-item">
+                            <input type="checkbox" id="disableNotifications" checked>
+                            <span class="setting-label">Disable notifications</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h3>Data Management</h3>
+                        <label class="setting-item">
+                            <input type="checkbox" id="clearDataOnExit" checked>
+                            <span class="setting-label">Clear data on exit</span>
+                        </label>
+                        <button id="clearDataNow" class="btn btn-secondary">Clear All Data Now</button>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h3>User Agent</h3>
+                        <input type="text" id="userAgent" class="setting-input" placeholder="Custom user agent string">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="savePrivacySettings" class="btn btn-primary">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="renderer.js"></script>
+</body>
+</html>
