@@ -232,6 +232,8 @@ function setupTabWebviewEvents(tab) {
     tab.webview.addEventListener('dom-ready', () => {
         console.log(`Tab ${tab.id}: DOM ready`);
         
+        // Set zoom factor to 10       tab.webview.setZoomFactor(1.0);
+        
         // Temporarily disable CSS injection to test basic functionality
         console.log('CSS injection disabled for testing');
         
