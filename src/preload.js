@@ -4,22 +4,53 @@ const { contextBridge, ipcRenderer } = require('electron');
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
   // Tab management
-  newTab: () => ipcRenderer.send('new-tab'),
-  closeTab: () => ipcRenderer.send('close-tab'),
+  newTab: (url) => ipcRenderer.invoke('new-tab', url),
+  closeTab: (tabId) => ipcRenderer.invoke('close-tab', tabId),
+  switchTab: (tabId) => ipcRenderer.invoke('switch-tab', tabId),
+  reorderTabs: (tabIds) => ipcRenderer.invoke('reorder-tabs', tabIds),
   
-  // Privacy controls
-  openPrivacySettings: () => ipcRenderer.send('open-privacy-settings'),
-  clearAllData: () => ipcRenderer.send('clear-all-data'),
+  // Bookmarks
+  addBookmark: (bookmark) => ipcRenderer.invoke('add-bookmark', bookmark),
+  removeBookmark: (bookmarkId) => ipcRenderer.invoke('remove-bookmark', bookmarkId),
+  getBookmarks: () => ipcRenderer.invoke('get-bookmarks'),
   
   // Navigation
-  navigate: (url) => ipcRenderer.send('navigate', url),
-  goBack: () => ipcRenderer.send('go-back'),
-  goForward: () => ipcRenderer.send('go-forward'),
-  reload: () => ipcRenderer.send('reload'),
+  navigate: (url) => ipcRenderer.invoke('navigate', url),
+  navigateToUrl: (url) => ipcRenderer.invoke('navigate', url),
+  goBack: () => ipcRenderer.invoke('go-back'),
+  goForward: () => ipcRenderer.invoke('go-forward'),
+  reload: () => ipcRenderer.invoke('reload'),
   
-  // Listeners
-  onTabUpdate: (callback) => ipcRenderer.on('tab-update', callback),
-  onPrivacySettingsOpen: (callback) => ipcRenderer.on('open-privacy-settings', callback),
+  // Get current state
+  getCurrentUrl: () => ipcRenderer.invoke('get-current-url'),
+  getNavigationState: () => ipcRenderer.invoke('get-navigation-state'),
+  
+  // BrowserView visibility control
+  hideBrowserView: () => ipcRenderer.invoke('hide-browser-view'),
+  showBrowserView: () => ipcRenderer.invoke('show-browser-view'),
+  
+  // Download Manager
+  getDownloads: () => ipcRenderer.invoke('get-downloads'),
+  cancelDownload: (downloadId) => ipcRenderer.invoke('cancel-download', downloadId),
+  openDownloadFolder: () => ipcRenderer.invoke('open-download-folder'),
+  openDownloadFile: (downloadId) => ipcRenderer.invoke('open-download-file', downloadId),
+  clearCompletedDownloads: () => ipcRenderer.invoke('clear-completed-downloads'),
+  
+  // Listen for events from main process
+  onTabList: (callback) => ipcRenderer.on('tab-list', callback),
+  onTabEvent: (callback) => ipcRenderer.on('tab-event', callback),
+  onBookmarksUpdated: (callback) => ipcRenderer.on('bookmarks-updated', callback),
+  onBrowserViewLoading: (callback) => ipcRenderer.on('browser-view-loading', callback),
+  onBrowserViewNavigate: (callback) => ipcRenderer.on('browser-view-navigate', callback),
+  onBrowserViewTitle: (callback) => ipcRenderer.on('browser-view-title', callback),
+  onRequestBlocked: (callback) => ipcRenderer.on('request-blocked', callback),
+  
+  // Download events
+  onDownloadStarted: (callback) => ipcRenderer.on('download-started', callback),
+  onDownloadUpdated: (callback) => ipcRenderer.on('download-updated', callback),
+  onDownloadCompleted: (callback) => ipcRenderer.on('download-completed', callback),
+  onDownloadCancelled: (callback) => ipcRenderer.on('download-cancelled', callback),
+  onDownloadsCleared: (callback) => ipcRenderer.on('downloads-cleared', callback),
   
   // Remove listeners
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)

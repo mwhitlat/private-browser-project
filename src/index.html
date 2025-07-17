@@ -8,123 +8,283 @@
 </head>
 <body>
     <div class="browser-container">
-        <!-- Browser Toolbar -->
+        <!-- Toolbar -->
         <div class="toolbar">
             <div class="toolbar-left">
-                <button id="backBtn" class="nav-btn" title="Go Back">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                    </svg>
-                </button>
-                <button id="forwardBtn" class="nav-btn" title="Go Forward">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                    </svg>
-                </button>
-                <button id="reloadBtn" class="nav-btn" title="Reload">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                    </svg>
-                </button>
+                <button id="backBtn" class="toolbar-btn" title="Go Back">←</button>
+                <button id="forwardBtn" class="toolbar-btn" title="Go Forward">→</button>
+                <button id="reloadBtn" class="toolbar-btn" title="Reload">↻</button>
             </div>
             
             <div class="address-bar-container">
-                <div class="address-bar">
-                    <div class="security-indicator" id="securityIndicator" title="Connection Security">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                        </svg>
-                    </div>
-                    <input type="text" id="addressBar" placeholder="Search or enter address" />
-                    <div class="privacy-indicator" id="privacyIndicator" title="Privacy Protection Active">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                        </svg>
-                    </div>
-                </div>
+                <div class="security-indicator" id="securityIndicator" title="Secure Connection (HTTPS)">🔒</div>
+                <input type="text" id="addressBar" class="address-bar" placeholder="Search or enter address">
+                <div class="privacy-indicator" id="privacyIndicator" title="Privacy Protection Active">🛡️</div>
             </div>
             
             <div class="toolbar-right">
-                <button id="privacyBtn" class="nav-btn" title="Privacy Settings">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                </button>
-                <button id="newTabBtn" class="nav-btn" title="New Tab">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                </button>
+                <button id="newTabBtn" class="toolbar-btn" title="New Tab">+</button>
+                <button id="bookmarksBtn" class="toolbar-btn" title="Bookmarks">⭐</button>
+                <button id="downloadManagerBtn" class="toolbar-btn" title="Download Manager">📥</button>
+                <button id="privacyDashboardBtn" class="toolbar-btn" title="Privacy Dashboard">📊</button>
+                <button id="privacyBtn" class="toolbar-btn" title="Privacy Settings">⚙️</button>
             </div>
         </div>
         
         <!-- Tab Bar -->
         <div class="tab-bar">
             <div class="tabs" id="tabs">
-                <div class="tab active" data-tab-id="1">
-                    <span class="tab-title">New Tab</span>
-                    <button class="tab-close" title="Close Tab">×</button>
-                </div>
+                <!-- Tabs will be created dynamically -->
             </div>
         </div>
         
-        <!-- Web Content Area -->
+        <!-- Content Area - BrowserView will be inserted here by main process -->
         <div class="content-area">
-            <!-- Webviews will be created dynamically -->
+            <!-- BrowserView content will appear here -->
         </div>
-        
-        <!-- Privacy Settings Modal -->
-        <div id="privacyModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Privacy Settings</h2>
-                    <button class="modal-close" id="closePrivacyModal">&times;</button>
+    </div>
+    
+    <!-- Bookmarks Modal -->
+    <div id="bookmarksModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Bookmarks</h2>
+                <button id="closeBookmarksModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="bookmarks-list" id="bookmarksList">
+                    <!-- Bookmarks will be populated dynamically -->
                 </div>
-                <div class="modal-body">
-                    <div class="setting-group">
-                        <h3>Tracking Protection</h3>
-                        <label class="setting-item">
-                            <input type="checkbox" id="blockTrackers" checked>
-                            <span class="setting-label">Block trackers</span>
-                        </label>
-                        <label class="setting-item">
-                            <input type="checkbox" id="blockAds" checked>
-                            <span class="setting-label">Block ads</span>
-                        </label>
+                <div class="add-bookmark-form">
+                    <h3>Add Current Page</h3>
+                    <div class="form-group">
+                        <label for="bookmarkTitle">Title:</label>
+                        <input type="text" id="bookmarkTitle" class="form-input" placeholder="Page title">
+                    </div>
+                    <div class="form-group">
+                        <label for="bookmarkUrl">URL:</label>
+                        <input type="text" id="bookmarkUrl" class="form-input" placeholder="https://example.com">
+                    </div>
+                    <button id="addBookmarkBtn" class="btn-primary">Add Bookmark</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Privacy Settings Modal -->
+    <div id="privacyModal" class="modal privacy-settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Privacy Settings</h2>
+                <button id="closePrivacyModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-settings-container">
+                    <div class="privacy-settings-header">
+                        <h2>🔒 Privacy Protection</h2>
+                        <p>Configure your browser's privacy and security settings</p>
                     </div>
                     
-                    <div class="setting-group">
-                        <h3>Privacy Features</h3>
-                        <label class="setting-item">
-                            <input type="checkbox" id="disableWebRTC" checked>
-                            <span class="setting-label">Disable WebRTC (prevents IP leaks)</span>
-                        </label>
-                        <label class="setting-item">
-                            <input type="checkbox" id="disableGeolocation" checked>
-                            <span class="setting-label">Disable geolocation</span>
-                        </label>
-                        <label class="setting-item">
-                            <input type="checkbox" id="disableNotifications" checked>
-                            <span class="setting-label">Disable notifications</span>
-                        </label>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <h3>Data Management</h3>
-                        <label class="setting-item">
-                            <input type="checkbox" id="clearDataOnExit" checked>
-                            <span class="setting-label">Clear data on exit</span>
-                        </label>
-                        <button id="clearDataNow" class="btn btn-secondary">Clear All Data Now</button>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <h3>User Agent</h3>
-                        <input type="text" id="userAgent" class="setting-input" placeholder="Custom user agent string">
+                    <div class="privacy-settings-content">
+                        <div class="setting-group">
+                            <h3>🛡️ Tracking Protection</h3>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Block Trackers & Analytics</div>
+                                    <div class="setting-description">Prevent websites from tracking your browsing behavior</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="blockTrackers"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Block Advertisements</div>
+                                    <div class="setting-description">Remove ads and prevent ad networks from loading</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="blockAds"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Enhanced Blocking</div>
+                                    <div class="setting-description">Comprehensive protection against advanced tracking methods</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="enhancedBlocking"></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <h3>🍪 Cookie Management</h3>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">First-Party Isolation</div>
+                                    <div class="setting-description">Isolate cookies by domain to prevent cross-site tracking</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="firstPartyIsolation"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Auto-Delete Cookies</div>
+                                    <div class="setting-description">Automatically clear cookies every hour</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="autoDeleteCookies"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Strip Tracking Cookies</div>
+                                    <div class="setting-description">Remove tracking parameters from cookies</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="stripTrackingCookies"></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <h3>🔐 Privacy Features</h3>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Disable WebRTC</div>
+                                    <div class="setting-description">Prevent IP address leaks through WebRTC connections</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="disableWebRTC"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Disable Geolocation</div>
+                                    <div class="setting-description">Prevent websites from accessing your location</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="disableGeolocation"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Disable Notifications</div>
+                                    <div class="setting-description">Block website notification requests</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="disableNotifications"></button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Fingerprint Protection</div>
+                                    <div class="setting-description">Prevent browser fingerprinting techniques</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="fingerprintProtection"></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <h3>🗑️ Data Management</h3>
+                            <div class="setting-item">
+                                <div class="setting-label">
+                                    <div class="setting-title">Clear Data on Exit</div>
+                                    <div class="setting-description">Automatically clear all browsing data when browser closes</div>
+                                </div>
+                                <div class="setting-control">
+                                    <div class="setting-status active">Active</div>
+                                    <button class="toggle-switch active" data-setting="clearDataOnExit"></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-agent-section">
+                            <h3>🌐 User Agent</h3>
+                            <textarea id="userAgent" class="user-agent-input" placeholder="Enter custom user agent string...">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) private-browser/1.0.0 Chrome/120.0.6099.291 Electron/28.3.3 Safari/537.36</textarea>
+                        </div>
+                        
+                        <div class="privacy-actions">
+                            <button id="clearDataNow" class="btn-clear-data">🗑️ Clear All Data Now</button>
+                            <button id="savePrivacySettings" class="btn-save-settings">💾 Save Settings</button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="savePrivacySettings" class="btn btn-primary">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Privacy Dashboard Modal -->
+    <div id="privacyDashboardModal" class="modal">
+        <div class="modal-content dashboard-modal">
+            <div class="modal-header">
+                <h2>Privacy Dashboard</h2>
+                <button id="closePrivacyDashboardModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="privacy-dashboard">
+                    <!-- Advanced Privacy Dashboard will be populated dynamically -->
+                </div>
+                
+                <div class="blocked-requests-container">
+                    <div class="blocked-requests-header">
+                        <h4>Recently Blocked Requests</h4>
+                        <button id="clearBlockedList" class="btn-secondary">Clear List</button>
+                    </div>
+                    <div class="blocked-requests-list" id="blockedRequestsList">
+                        <!-- Blocked requests will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="testing-section">
+                    <h3>Test Privacy Protection</h3>
+                    <p>Visit these sites to test your privacy protection:</p>
+                    <div class="test-links">
+                        <button class="test-link" data-url="https://www.google.com">Google (test tracking)</button>
+                        <button class="test-link" data-url="https://www.facebook.com">Facebook (test social tracking)</button>
+                        <button class="test-link" data-url="https://www.cnn.com">CNN (test ads)</button>
+                        <button class="test-link" data-url="https://www.nytimes.com">NY Times (test analytics)</button>
+                        <button class="test-link" data-url="https://browserleaks.com">Browser Leaks (test fingerprinting)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Download Manager Modal -->
+    <div id="downloadManagerModal" class="modal">
+        <div class="modal-content download-manager-modal">
+            <div class="modal-header">
+                <h2>📥 Download Manager</h2>
+                <button id="closeDownloadManagerModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="download-manager-container">
+                    <div class="download-stats" id="downloadStats">
+                        <!-- Download statistics will be populated dynamically -->
+                    </div>
+                    
+                    <div class="download-actions-bar">
+                        <button onclick="openDownloadFolder()" class="btn-secondary">📁 Open Downloads Folder</button>
+                        <button onclick="clearCompletedDownloads()" class="btn-secondary">🗑️ Clear Completed</button>
+                    </div>
+                    
+                    <div class="downloads-list" id="downloadsList">
+                        <!-- Downloads will be populated dynamically -->
+                    </div>
                 </div>
             </div>
         </div>
