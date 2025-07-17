@@ -132,11 +132,11 @@ function createNewTab() {
     const tabElement = document.createElement('div');
     tabElement.className = 'tab';
     tabElement.setAttribute('data-tab-id', tabId);
-    
+
     const tabTitle = document.createElement('span');
     tabTitle.className = 'tab-title';
     tabTitle.textContent = 'New Tab';
-    
+
     const tabClose = document.createElement('button');
     tabClose.className = 'tab-close';
     tabClose.title = 'Close Tab';
@@ -145,58 +145,29 @@ function createNewTab() {
         e.stopPropagation();
         closeTab(tabId);
     });
-    
+
     tabElement.appendChild(tabTitle);
     tabElement.appendChild(tabClose);
-    
-    // Create webview for this tab
+
+    // Create and configure webview
     const tabWebview = document.createElement('webview');
-    
-    // Set webview attributes
-    tabWebview.setAttribute('webpreferences', 'nodeIntegration=no, contextIsolation=yes, webSecurity=yes');
-    tabWebview.setAttribute('allowpopups', 'true');
-    tabWebview.setAttribute('allowfullscreen', 'true');
-    
-    // Force the webview to fill its container
-    tabWebview.style.cssText = `
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-      max-width: none !important;
-      max-height: none !important;
-      border: none !important;
-      display: block !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      z-index: 1000 !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    `;
-    
-    // Debug: Log the webview creation
-    console.log('Creating webview with styles:', tabWebview.style.cssText);
-    console.log('Content area dimensions:', document.querySelector('.content-area').getBoundingClientRect());
-    
+    tabWebview.setAttribute('webpreferences', 'contextIsolation=yes');
+    tabWebview.setAttribute('allowpopups', '');
+
+    // ✅ Make it fill its container via absolute positioning
+    tabWebview.style.position = 'absolute';
+    tabWebview.style.top = '0';
+    tabWebview.style.left = '0';
+    tabWebview.style.right = '0';
+    tabWebview.style.bottom = '0';
+    tabWebview.style.width = '100%';
+    tabWebview.style.height = '100%';
+    tabWebview.style.border = 'none';
+
+    // Append webview to the layout
     const contentArea = document.querySelector('.content-area');
     contentArea.appendChild(tabWebview);
 
-    // Force layout reflow and correct sizing
-    requestAnimationFrame(() => {
-        const rect = contentArea.getBoundingClientRect();
-        tabWebview.style.position = 'absolute';
-        tabWebview.style.top = '0';
-        tabWebview.style.left = '0';
-        tabWebview.style.width = `${rect.width}px`;
-        tabWebview.style.height = `${rect.height}px`;
-        console.log('Webview forced size to:', rect.width, 'x', rect.height);
-    });
-    
     const tab = {
         id: tabId,
         element: tabElement,
@@ -204,27 +175,22 @@ function createNewTab() {
         title: 'New Tab',
         url: 'about:blank'
     };
-    
+
     tabs.set(tabId, tab);
     tabsContainer.appendChild(tabElement);
-    
-    // Switch to new tab
+
     switchToTab(tabId);
-    
-    // Set up webview events for this tab
     setupTabWebviewEvents(tab);
-    
-    // If this is the first tab, load the default page
+
+    // Load test or homepage URL
     if (tabs.size === 1) {
-        // Load Google as the default page
-        console.log('Loading default page: https://www.google.com');
-        setTimeout(() => {
-            tab.webview.src = 'https://www.google.com';
-        }, 100);
+        tab.webview.src = `https://example.com`; // or local file
     }
-    
+
     return tab;
 }
+
+
 
 function setupTabWebviewEvents(tab) {
     tab.webview.addEventListener('did-start-loading', () => {
