@@ -48,7 +48,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // Missing utility functions
 function getStoreValue(key, defaultValue = null) {
   try {
-    return getStoreValue(key, defaultValue);
+    return store.get(key, defaultValue);
   } catch (error) {
     console.error('Error getting store value:', error);
     return defaultValue;
@@ -64,42 +64,6 @@ function analyzeContent(content, options = {}) {
     return null;
   }
 }
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
-
-// Missing utility functions
 
 const store = new Store({
   defaults: {
@@ -295,14 +259,17 @@ function switchToTab(tabId) {
   }
   
   try {
-    // Check if browserView is destroyed
-    const isDestroyed = typeof tab.browserView.isDestroyed === 'function' 
-      ? tab.browserView.isDestroyed() 
-      : tab.browserView.isDestroyed;
-    
-    if (isDestroyed) {
-      console.error('BrowserView is destroyed for tab:', tabId);
-      return;
+    // Check if webContents is destroyed
+    const webContents = tab.browserView.webContents;
+    if (webContents) {
+      const isDestroyed = typeof webContents.isDestroyed === 'function' 
+        ? webContents.isDestroyed() 
+        : webContents.isDestroyed;
+      
+      if (isDestroyed) {
+        console.error('WebContents is destroyed for tab:', tabId);
+        return;
+      }
     }
     
     if (mainWindow.getBrowserView()) {
@@ -313,7 +280,7 @@ function switchToTab(tabId) {
     mainWindow.setBrowserView(tab.browserView);
     notifyTabList();
   } catch (error) {
-    console.error('Error switching to tab:', error);
+    logError('SWITCH_TO_TAB', error);
   }
 }
 
@@ -322,23 +289,35 @@ function updateTabMeta(tabId, url, title) {
   if (!tab || !tab.browserView) return;
   
   try {
+    // Check if webContents is destroyed
+    const webContents = tab.browserView.webContents;
+    if (webContents) {
+      const isDestroyed = typeof webContents.isDestroyed === 'function' 
+        ? webContents.isDestroyed() 
+        : webContents.isDestroyed;
+      
+      if (isDestroyed) {
+        console.log('WebContents is destroyed for tab:', tabId);
+        return;
+      }
+    }
+    
     if (url) tab.url = url;
     if (title) tab.title = title;
     else {
-      const webContents = tab.browserView.webContents;
       if (webContents) {
-        const isDestroyed = typeof webContents.isDestroyed === 'function' 
+        const webContentsDestroyed = typeof webContents.isDestroyed === 'function' 
           ? webContents.isDestroyed() 
           : webContents.isDestroyed;
         
-        if (!isDestroyed) {
+        if (!webContentsDestroyed) {
           tab.title = webContents.getTitle() || 'New Tab';
         }
       }
     }
     notifyTabList();
   } catch (error) {
-    console.error('Error updating tab meta:', error);
+    logError('UPDATE_TAB_META', error);
   }
 }
 
@@ -604,189 +583,10 @@ function setupIPCHandlers() {
     ipcMain.removeHandler('get-auth-status');
     ipcMain.removeHandler('lock-browser');
   } catch (error) {
-    console.error('Error cleaning up IPC handlers:', error);
-  }
-
-  // Clear existing handlers to prevent duplicates
-  try {
-    ipcMain.removeHandler('new-tab');
-    ipcMain.removeHandler('close-tab');
-    ipcMain.removeHandler('switch-tab');
-    ipcMain.removeHandler('reorder-tabs');
-    ipcMain.removeHandler('navigate');
-    ipcMain.removeHandler('go-back');
-    ipcMain.removeHandler('go-forward');
-    ipcMain.removeHandler('reload');
-    ipcMain.removeHandler('get-current-url');
-    ipcMain.removeHandler('get-navigation-state');
-    ipcMain.removeHandler('add-bookmark');
-    ipcMain.removeHandler('remove-bookmark');
-    ipcMain.removeHandler('get-bookmarks');
-    ipcMain.removeHandler('hide-browser-view');
-    ipcMain.removeHandler('show-browser-view');
-    ipcMain.removeHandler('get-downloads');
-    ipcMain.removeHandler('cancel-download');
-    ipcMain.removeHandler('open-download-folder');
-    ipcMain.removeHandler('open-download-file');
-    ipcMain.removeHandler('clear-completed-downloads');
-    ipcMain.removeHandler('generate-content-summary');
-    ipcMain.removeHandler('get-summary-history');
-    ipcMain.removeHandler('clear-summary-history');
-    ipcMain.removeHandler('analyze-current-page');
-    ipcMain.removeHandler('get-content-analysis-history');
-    ipcMain.removeHandler('clear-content-analysis-history');
-    ipcMain.removeHandler('get-ai-settings');
-    ipcMain.removeHandler('get-media-diet-settings');
-    ipcMain.removeHandler('get-auth-status');
-    ipcMain.removeHandler('lock-browser');
-  } catch (error) {
-    console.error('Error cleaning up IPC handlers:', error);
-  }
-
-  // Clear existing handlers to prevent duplicates
-  try {
-    ipcMain.removeHandler('new-tab');
-    ipcMain.removeHandler('close-tab');
-    ipcMain.removeHandler('switch-tab');
-    ipcMain.removeHandler('reorder-tabs');
-    ipcMain.removeHandler('navigate');
-    ipcMain.removeHandler('go-back');
-    ipcMain.removeHandler('go-forward');
-    ipcMain.removeHandler('reload');
-    ipcMain.removeHandler('get-current-url');
-    ipcMain.removeHandler('get-navigation-state');
-    ipcMain.removeHandler('add-bookmark');
-    ipcMain.removeHandler('remove-bookmark');
-    ipcMain.removeHandler('get-bookmarks');
-    ipcMain.removeHandler('hide-browser-view');
-    ipcMain.removeHandler('show-browser-view');
-    ipcMain.removeHandler('get-downloads');
-    ipcMain.removeHandler('cancel-download');
-    ipcMain.removeHandler('open-download-folder');
-    ipcMain.removeHandler('open-download-file');
-    ipcMain.removeHandler('clear-completed-downloads');
-    ipcMain.removeHandler('generate-content-summary');
-    ipcMain.removeHandler('get-summary-history');
-    ipcMain.removeHandler('clear-summary-history');
-    ipcMain.removeHandler('analyze-current-page');
-    ipcMain.removeHandler('get-content-analysis-history');
-    ipcMain.removeHandler('clear-content-analysis-history');
-    ipcMain.removeHandler('get-ai-settings');
-    ipcMain.removeHandler('get-media-diet-settings');
-    ipcMain.removeHandler('get-auth-status');
-    ipcMain.removeHandler('lock-browser');
-  } catch (error) {
-    console.error('Error cleaning up IPC handlers:', error);
-  }
-
-  // Clear existing handlers to prevent duplicates
-  try {
-    ipcMain.removeHandler('new-tab');
-    ipcMain.removeHandler('close-tab');
-    ipcMain.removeHandler('switch-tab');
-    ipcMain.removeHandler('reorder-tabs');
-    ipcMain.removeHandler('navigate');
-    ipcMain.removeHandler('go-back');
-    ipcMain.removeHandler('go-forward');
-    ipcMain.removeHandler('reload');
-    ipcMain.removeHandler('get-current-url');
-    ipcMain.removeHandler('get-navigation-state');
-    ipcMain.removeHandler('add-bookmark');
-    ipcMain.removeHandler('remove-bookmark');
-    ipcMain.removeHandler('get-bookmarks');
-    ipcMain.removeHandler('hide-browser-view');
-    ipcMain.removeHandler('show-browser-view');
-    ipcMain.removeHandler('get-downloads');
-    ipcMain.removeHandler('cancel-download');
-    ipcMain.removeHandler('open-download-folder');
-    ipcMain.removeHandler('open-download-file');
-    ipcMain.removeHandler('clear-completed-downloads');
-    ipcMain.removeHandler('generate-content-summary');
-    ipcMain.removeHandler('get-summary-history');
-    ipcMain.removeHandler('clear-summary-history');
-    ipcMain.removeHandler('analyze-current-page');
-    ipcMain.removeHandler('get-content-analysis-history');
-    ipcMain.removeHandler('clear-content-analysis-history');
-    ipcMain.removeHandler('get-ai-settings');
-    ipcMain.removeHandler('get-media-diet-settings');
-    ipcMain.removeHandler('get-auth-status');
-    ipcMain.removeHandler('lock-browser');
-  } catch (error) {
-    console.error('Error cleaning up IPC handlers:', error);
-  }
-
-  // Clear existing handlers to prevent duplicates
-  try {
-    ipcMain.removeHandler('new-tab');
-    ipcMain.removeHandler('close-tab');
-    ipcMain.removeHandler('switch-tab');
-    ipcMain.removeHandler('reorder-tabs');
-    ipcMain.removeHandler('navigate');
-    ipcMain.removeHandler('go-back');
-    ipcMain.removeHandler('go-forward');
-    ipcMain.removeHandler('reload');
-    ipcMain.removeHandler('get-current-url');
-    ipcMain.removeHandler('get-navigation-state');
-    ipcMain.removeHandler('add-bookmark');
-    ipcMain.removeHandler('remove-bookmark');
-    ipcMain.removeHandler('get-bookmarks');
-    ipcMain.removeHandler('hide-browser-view');
-    ipcMain.removeHandler('show-browser-view');
-    ipcMain.removeHandler('get-downloads');
-    ipcMain.removeHandler('cancel-download');
-    ipcMain.removeHandler('open-download-folder');
-    ipcMain.removeHandler('open-download-file');
-    ipcMain.removeHandler('clear-completed-downloads');
-    ipcMain.removeHandler('generate-content-summary');
-    ipcMain.removeHandler('get-summary-history');
-    ipcMain.removeHandler('clear-summary-history');
-    ipcMain.removeHandler('analyze-current-page');
-    ipcMain.removeHandler('get-content-analysis-history');
-    ipcMain.removeHandler('clear-content-analysis-history');
-    ipcMain.removeHandler('get-ai-settings');
-    ipcMain.removeHandler('get-media-diet-settings');
-    ipcMain.removeHandler('get-auth-status');
-    ipcMain.removeHandler('lock-browser');
-  } catch (error) {
-    console.error('Error cleaning up IPC handlers:', error);
-  }
-
-  // Clear existing handlers to prevent duplicates
-  try {
-    ipcMain.removeHandler('new-tab');
-    ipcMain.removeHandler('close-tab');
-    ipcMain.removeHandler('switch-tab');
-    ipcMain.removeHandler('reorder-tabs');
-    ipcMain.removeHandler('navigate');
-    ipcMain.removeHandler('go-back');
-    ipcMain.removeHandler('go-forward');
-    ipcMain.removeHandler('reload');
-    ipcMain.removeHandler('get-current-url');
-    ipcMain.removeHandler('get-navigation-state');
-    ipcMain.removeHandler('add-bookmark');
-    ipcMain.removeHandler('remove-bookmark');
-    ipcMain.removeHandler('get-bookmarks');
-    ipcMain.removeHandler('hide-browser-view');
-    ipcMain.removeHandler('show-browser-view');
-    ipcMain.removeHandler('get-downloads');
-    ipcMain.removeHandler('cancel-download');
-    ipcMain.removeHandler('open-download-folder');
-    ipcMain.removeHandler('open-download-file');
-    ipcMain.removeHandler('clear-completed-downloads');
-    ipcMain.removeHandler('generate-content-summary');
-    ipcMain.removeHandler('get-summary-history');
-    ipcMain.removeHandler('clear-summary-history');
-    ipcMain.removeHandler('analyze-current-page');
-    ipcMain.removeHandler('get-content-analysis-history');
-    ipcMain.removeHandler('clear-content-analysis-history');
-    ipcMain.removeHandler('get-ai-settings');
-    ipcMain.removeHandler('get-media-diet-settings');
-    ipcMain.removeHandler('get-auth-status');
-    ipcMain.removeHandler('lock-browser');
-  } catch (error) {
     logError('IPC_HANDLER_CLEANUP', error);
   }
 
+  // Tab management
   ipcMain.handle('new-tab', (event, url) => {
     try {
       createNewTab(url || 'about:blank');
@@ -796,61 +596,72 @@ function setupIPCHandlers() {
       return { success: false, error: error.message };
     }
   });
+  
   ipcMain.handle('close-tab', (event, tabId) => {
     closeTab(tabId);
     return { success: true };
   });
+  
   ipcMain.handle('switch-tab', (event, tabId) => {
     switchToTab(tabId);
     return { success: true };
   });
+  
   ipcMain.handle('reorder-tabs', (event, tabIds) => {
     reorderTabs(tabIds);
     return { success: true };
   });
+  
+  // Navigation
   ipcMain.handle('navigate', async (event, url) => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab) {
+    if (tab && tab.browserView && tab.browserView.webContents) {
       try {
         await tab.browserView.webContents.loadURL(url);
         return { success: true };
       } catch (error) {
+        logError('NAVIGATE_HANDLER', error);
         return { success: false, error: error.message };
       }
     }
     return { success: false, error: 'No active tab' };
   });
+  
   ipcMain.handle('go-back', async () => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab && tab.browserView.webContents.canGoBack()) {
+    if (tab && tab.browserView && tab.browserView.webContents && tab.browserView.webContents.canGoBack()) {
       tab.browserView.webContents.goBack();
       return { success: true };
     }
     return { success: false };
   });
+  
   ipcMain.handle('go-forward', async () => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab && tab.browserView.webContents.canGoForward()) {
+    if (tab && tab.browserView && tab.browserView.webContents && tab.browserView.webContents.canGoForward()) {
       tab.browserView.webContents.goForward();
       return { success: true };
     }
     return { success: false };
   });
+  
   ipcMain.handle('reload', async () => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab) {
+    if (tab && tab.browserView && tab.browserView.webContents) {
       tab.browserView.webContents.reload();
       return { success: true };
     }
     return { success: false };
   });
+  
   ipcMain.handle('get-current-url', async () => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab) {
+    if (tab && tab.browserView && tab.browserView.webContents) {
       return tab.browserView.webContents.getURL();
     }
     return null;
   });
+  
   ipcMain.handle('get-navigation-state', async () => {
     const tab = tabs.find(t => t.id === activeTabId);
     if (tab && tab.browserView && tab.browserView.webContents) {
@@ -861,7 +672,7 @@ function setupIPCHandlers() {
           isLoading: tab.browserView.webContents.isLoading()
         };
       } catch (error) {
-        console.error('Error getting navigation state:', error);
+        logError('GET_NAVIGATION_STATE', error);
         return { canGoBack: false, canGoForward: false, isLoading: false };
       }
     }
@@ -936,21 +747,26 @@ function setupIPCHandlers() {
       if (!tab.browserView) {
         return { success: false, error: 'BrowserView not found' };
       }
-      const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
-        ? (typeof tab.browserView.isDestroyed === 'function' ? (typeof tab.browserView.isDestroyed === 'function' ? tab.browserView.isDestroyed() : tab.browserView.isDestroyed) : tab.browserView.isDestroyed)
-        : tab.browserView.isDestroyed;
-      if (isDestroyed) {
-        return { success: false, error: 'BrowserView is destroyed' };
-      }
+      
+      // Check if webContents is destroyed
       const webContents = tab.browserView.webContents;
       if (!webContents) {
         return { success: false, error: 'WebContents not found' };
       }
+      
+      const isDestroyed = typeof webContents.isDestroyed === 'function' 
+        ? webContents.isDestroyed() 
+        : webContents.isDestroyed;
+      
+      if (isDestroyed) {
+        return { success: false, error: 'WebContents is destroyed' };
+      }
+      
       const url = webContents.getURL();
       generateContentSummary(webContents, url);
       return { success: true };
     } catch (error) {
-      console.error('Error in generate-content-summary handler:', error);
+      logError('GENERATE_CONTENT_SUMMARY', error);
       return { success: false, error: error.message };
     }
   });
@@ -974,21 +790,26 @@ function setupIPCHandlers() {
       if (!tab.browserView) {
         return { success: false, error: 'BrowserView not found' };
       }
-      const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
-        ? (typeof tab.browserView.isDestroyed === 'function' ? (typeof tab.browserView.isDestroyed === 'function' ? tab.browserView.isDestroyed() : tab.browserView.isDestroyed) : tab.browserView.isDestroyed)
-        : tab.browserView.isDestroyed;
-      if (isDestroyed) {
-        return { success: false, error: 'BrowserView is destroyed' };
-      }
+      
+      // Check if webContents is destroyed
       const webContents = tab.browserView.webContents;
       if (!webContents) {
         return { success: false, error: 'WebContents not found' };
       }
+      
+      const isDestroyed = typeof webContents.isDestroyed === 'function' 
+        ? webContents.isDestroyed() 
+        : webContents.isDestroyed;
+      
+      if (isDestroyed) {
+        return { success: false, error: 'WebContents is destroyed' };
+      }
+      
       const url = webContents.getURL();
       analyzePageContent(webContents, url);
       return { success: true };
     } catch (error) {
-      console.error('Error in analyze-current-page handler:', error);
+      logError('ANALYZE_CURRENT_PAGE', error);
       return { success: false, error: error.message };
     }
   });
@@ -1001,30 +822,35 @@ function setupIPCHandlers() {
     clearContentAnalysisHistory();
     return { success: true };
   });
-  
+
+  // Settings and status handlers
   ipcMain.handle('get-ai-settings', () => {
     return {
-      enableContentAnalysis: true,
-      enableBiasAnalysis: true,
-      enableEmotionalTone: true,
-      enableSummary: true,
-      enableKeyPoints: true,
-      enableReadability: true
+      enabled: true,
+      model: 'gpt-3.5-turbo',
+      maxTokens: 500
     };
   });
-  
+
   ipcMain.handle('get-media-diet-settings', () => {
     return {
-      trackContentHistory: true,
-      maxHistoryEntries: 50,
-      enableBiasTracking: true,
-      enableToneTracking: true
+      enabled: true,
+      strictMode: false,
+      allowedDomains: []
     };
   });
-  
-  // Auth status handler
+
   ipcMain.handle('get-auth-status', () => {
-    return { authenticated: true, bypassed: true }; // For testing
+    return {
+      authenticated: false,
+      method: 'none'
+    };
+  });
+
+  ipcMain.handle('lock-browser', () => {
+    // Implement browser locking functionality
+    console.log('Browser lock requested');
+    return { success: true };
   });
 }
 
