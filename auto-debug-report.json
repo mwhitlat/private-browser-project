@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-07-18T02:59:10.110Z",
+  "issues": [
+    {
+      "type": "BROWSERVIEW_API",
+      "severity": "HIGH",
+      "message": "Unsafe BrowserView.isDestroyed() calls detected",
+      "location": "main.js",
+      "fix": "addNullChecks"
+    },
+    {
+      "type": "SYNTAX_ERROR",
+      "severity": "HIGH",
+      "message": "Mismatched brackets",
+      "location": "main.js",
+      "fix": "fixBrackets"
+    }
+  ],
+  "fixes": [
+    {
+      "description": "Add null checks for main.js",
+      "type": "ADD_NULL_CHECKS"
+    }
+  ],
+  "summary": {
+    "totalIssues": 2,
+    "totalFixes": 1,
+    "criticalIssues": 2
+  }
+}

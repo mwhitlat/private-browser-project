@@ -25,6 +25,8 @@
             <div class="toolbar-right">
                 <button id="newTabBtn" class="toolbar-btn" title="New Tab">+</button>
                 <button id="bookmarksBtn" class="toolbar-btn" title="Bookmarks">⭐</button>
+                <button id="contentSummaryBtn" class="toolbar-btn" title="Content Summary & Voice">🤖</button>
+                <button id="contentAnalysisBtn" class="toolbar-btn" title="Bias Analysis">🧠</button>
                 <button id="downloadManagerBtn" class="toolbar-btn" title="Download Manager">📥</button>
                 <button id="privacyDashboardBtn" class="toolbar-btn" title="Privacy Dashboard">📊</button>
                 <button id="privacyBtn" class="toolbar-btn" title="Privacy Settings">⚙️</button>
@@ -284,6 +286,96 @@
                     
                     <div class="downloads-list" id="downloadsList">
                         <!-- Downloads will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content Summary Modal -->
+    <div id="contentSummaryModal" class="modal">
+        <div class="modal-content content-summary-modal">
+            <div class="modal-header">
+                <h2>🤖 Content Summary & Voice</h2>
+                <button id="closeContentSummaryModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-summary-container">
+                    <div class="summary-actions">
+                        <button onclick="generateContentSummary()" class="btn-primary">📝 Generate Summary</button>
+                        <button onclick="startVoiceReading()" class="btn-secondary">🔊 Start Reading</button>
+                        <button onclick="stopVoiceReading()" class="btn-secondary">⏹️ Stop Reading</button>
+                    </div>
+                    
+                    <div class="summary-content">
+                        <div class="current-summary-section">
+                            <h3>📄 Current Summary</h3>
+                            <div id="currentSummary">
+                                <p>No summary available. Click "Generate Summary" to start.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="voice-controls">
+                            <h3>🔊 Voice Settings</h3>
+                            <div class="voice-settings">
+                                <div class="setting-group">
+                                    <label for="voiceSpeed">Speed:</label>
+                                    <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" class="slider">
+                                    <span id="speedValue">1x</span>
+                                </div>
+                                <div class="setting-group">
+                                    <label for="voicePitch">Pitch:</label>
+                                    <input type="range" id="voicePitch" min="0.5" max="2" step="0.1" value="1" class="slider">
+                                    <span id="pitchValue">1x</span>
+                                </div>
+                                <div class="setting-group">
+                                    <label for="voiceVolume">Volume:</label>
+                                    <input type="range" id="voiceVolume" min="0" max="1" step="0.1" value="0.8" class="slider">
+                                    <span id="volumeValue">80%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-history-section">
+                            <h3>📚 Summary History</h3>
+                            <div id="summaryHistory">
+                                <p>No summary history available.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content Analysis Modal -->
+    <div id="contentAnalysisModal" class="modal">
+        <div class="modal-content content-analysis-modal">
+            <div class="modal-header">
+                <h2>🧠 Bias Analysis</h2>
+                <button id="closeContentAnalysisModal" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-analysis-container">
+                    <div class="analysis-actions">
+                        <button onclick="analyzeCurrentPage()" class="btn-primary">🔍 Analyze Bias</button>
+                        <button onclick="clearContentAnalysisHistory()" class="btn-secondary">🗑️ Clear History</button>
+                    </div>
+                    
+                    <div class="analysis-content">
+                        <div class="current-analysis-section">
+                            <h3>📊 Current Bias Analysis</h3>
+                            <div id="currentAnalysis">
+                                <p>No bias analysis available. Click "Analyze Bias" to start.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-history-section">
+                            <h3>📚 Bias Analysis History</h3>
+                            <div id="contentAnalysisHistory">
+                                <p>No bias analysis history available.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

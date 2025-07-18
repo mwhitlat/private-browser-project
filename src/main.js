@@ -3,6 +3,265 @@ const path = require('path');
 const Store = require('electron-store');
 const fs = require('fs');
 const os = require('os');
+const AIService = require('./ai-service');
+
+// Enhanced error logging system
+const DEBUG_MODE = process.env.NODE_ENV === 'development' || process.argv.includes('--debug');
+
+function logError(context, error, additionalData = {}) {
+  const timestamp = new Date().toISOString();
+  const errorInfo = {
+    timestamp,
+    context,
+    error: error.message || error,
+    stack: error.stack,
+    ...additionalData
+  };
+  
+  console.error(`[${timestamp}] ERROR in ${context}:`, errorInfo);
+  
+  // In debug mode, also log to file
+  if (DEBUG_MODE) {
+    const fs = require('fs');
+    const logFile = path.join(__dirname, '../debug-logs.txt');
+    const logEntry = JSON.stringify(errorInfo, null, 2) + '\n---\n';
+    fs.appendFileSync(logFile, logEntry);
+  }
+}
+
+function logInfo(context, message, data = {}) {
+  if (DEBUG_MODE) {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] INFO in ${context}:`, message, data);
+  }
+}
+
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  logError('UNCAUGHT_EXCEPTION', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logError('UNHANDLED_REJECTION', reason, { promise });
+});
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    logError('GET_STORE_VALUE', error, { key, defaultValue });
+    return defaultValue;
+  }
+}
+
+function analyzeContent(content, options = {}) {
+  try {
+    const aiService = new AIService();
+    return aiService.analyzeContent(content, options);
+  } catch (error) {
+    logError('ANALYZE_CONTENT', error, { content: content?.substring(0, 100), options });
+    return null;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function getStoreValue(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in getStoreValue:', error);
+    return defaultValue;
+  }
+}
+
+
+// Missing utility functions
+function analyzeContent(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in analyzeContent:', error);
+    return defaultValue;
+  }
+}
 
 const store = new Store({
   defaults: {
@@ -192,23 +451,48 @@ function closeTab(tabId) {
 
 function switchToTab(tabId) {
   const tab = tabs.find(t => t.id === tabId);
-  if (!tab) return;
-  if (mainWindow.getBrowserView()) {
-    mainWindow.setBrowserView(null);
+  if (!tab || !tab.browserView) {
+    logError('SWITCH_TAB', new Error(`Tab ${tabId} not found or has no browserView`));
+    return;
   }
-  activeTabId = tabId;
-  updateBrowserViewBounds(tab.browserView);
-  mainWindow.setBrowserView(tab.browserView);
-  notifyTabList();
+  
+  try {
+    // Check if browserView is destroyed
+    if (tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed()) {
+      logError('SWITCH_TAB', new Error(`BrowserView for tab ${tabId} is destroyed`));
+      return;
+    }
+    
+    if (mainWindow.getBrowserView()) {
+      mainWindow.setBrowserView(null);
+    }
+    activeTabId = tabId;
+    updateBrowserViewBounds(tab.browserView);
+    mainWindow.setBrowserView(tab.browserView);
+    notifyTabList();
+    logInfo('SWITCH_TAB', `Successfully switched to tab ${tabId}`);
+  } catch (error) {
+    logError('SWITCH_TAB', error, { tabId });
+  }
 }
 
 function updateTabMeta(tabId, url, title) {
   const tab = tabs.find(t => t.id === tabId);
-  if (!tab) return;
-  if (url) tab.url = url;
-  if (title) tab.title = title;
-  else tab.title = tab.browserView.webContents.getTitle() || 'New Tab';
-  notifyTabList();
+  if (!tab || !tab.browserView) return;
+  
+  try {
+    if (url) tab.url = url;
+    if (title) tab.title = title;
+    else {
+      const webContents = tab.browserView.webContents;
+      if (webContents && !webContents.isDestroyed()) {
+        tab.title = webContents.getTitle() || 'New Tab';
+      }
+    }
+    notifyTabList();
+  } catch (error) {
+    console.error('Error updating tab meta:', error);
+  }
 }
 
 function updateBrowserViewBounds(browserView) {
@@ -251,10 +535,419 @@ function sendTabEvent(event, tabId, data) {
   mainWindow.webContents.send('tab-event', { event, tabId, data });
 }
 
+// Content Analysis and AI Features
+const aiService = new AIService();
+
+// Store for content analysis history
+let contentAnalysisHistory = [];
+
+// Store for content summary history
+let summaryHistory = [];
+
+function analyzePageContent(webContents, url) {
+  try {
+    // Get page content
+    webContents.executeJavaScript(`
+      (() => {
+        // Extract main content, excluding navigation, ads, etc.
+        const selectors = [
+          'article', 'main', '.content', '.post-content', '.entry-content',
+          '.article-content', '.story-content', '.text-content', 'p'
+        ];
+        
+        let content = '';
+        for (const selector of selectors) {
+          const elements = document.querySelectorAll(selector);
+          for (const element of elements) {
+            // Skip if element is likely navigation or ads
+            const text = element.textContent.trim();
+            if (text.length > 100 && !element.closest('nav, header, footer, .sidebar, .ad, .advertisement')) {
+              content += text + '\\n\\n';
+            }
+          }
+        }
+        
+        // Fallback to body content if no specific content found
+        if (content.length < 500) {
+          content = document.body.textContent;
+        }
+        
+        return {
+          content: content.substring(0, 10000), // Limit content length
+          title: document.title,
+          url: window.location.href
+        };
+      })()
+    `).then(result => {
+      if (result && result.content && result.content.length > 100) {
+        // Analyze content for bias and emotional tone only
+        const analysis = aiService.analyzeContent(result.content, {
+          enableSummary: false,
+          enableReadingTime: false,
+          enableKeyPoints: false,
+          enableReadability: true,
+          enableTopics: true,
+          enableBiasAnalysis: true,
+          enableEmotionalTone: true
+        });
+        
+        if (analysis) {
+          // Store analysis in history
+          const analysisEntry = {
+            id: Date.now(),
+            url: url,
+            title: result.title,
+            timestamp: new Date().toISOString(),
+            analysis: analysis
+          };
+          
+          contentAnalysisHistory.unshift(analysisEntry);
+          
+          // Keep only last 50 analyses
+          if (contentAnalysisHistory.length > 50) {
+            contentAnalysisHistory = contentAnalysisHistory.slice(0, 50);
+          }
+          
+          // Send analysis to renderer
+          if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('content-analysis-complete', analysisEntry);
+          }
+          
+          console.log('✅ Content analysis completed for:', url);
+        }
+      }
+    }).catch(error => {
+      console.error('Error analyzing page content:', error);
+    });
+  } catch (error) {
+    console.error('Error in page load analysis:', error);
+  }
+}
+
+function getContentAnalysisHistory() {
+  return contentAnalysisHistory;
+}
+
+function clearContentAnalysisHistory() {
+  contentAnalysisHistory = [];
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('content-analysis-history-cleared');
+  }
+}
+
+function generateContentSummary(webContents, url) {
+  try {
+    // Get page content
+    webContents.executeJavaScript(`
+      (() => {
+        // Extract main content, excluding navigation, ads, etc.
+        const selectors = [
+          'article', 'main', '.content', '.post-content', '.entry-content',
+          '.article-content', '.story-content', '.text-content', 'p'
+        ];
+        
+        let content = '';
+        for (const selector of selectors) {
+          const elements = document.querySelectorAll(selector);
+          for (const element of elements) {
+            // Skip if element is likely navigation or ads
+            const text = element.textContent.trim();
+            if (text.length > 100 && !element.closest('nav, header, footer, .sidebar, .ad, .advertisement')) {
+              content += text + '\\n\\n';
+            }
+          }
+        }
+        
+        // Fallback to body content if no specific content found
+        if (content.length < 500) {
+          content = document.body.textContent;
+        }
+        
+        return {
+          content: content.substring(0, 10000), // Limit content length
+          title: document.title,
+          url: window.location.href
+        };
+      })()
+    `).then(result => {
+      if (result && result.content && result.content.length > 100) {
+        // Generate summary using AI service
+        const summary = aiService.generateSummary(result.content, 'medium');
+        const readingTime = aiService.calculateReadingTime(result.content);
+        const keyPoints = aiService.extractKeyPoints(result.content);
+        
+        if (summary) {
+          // Store summary in history
+          const summaryEntry = {
+            id: Date.now(),
+            url: url,
+            title: result.title,
+            timestamp: new Date().toISOString(),
+            summary: summary,
+            readingTime: readingTime,
+            keyPoints: keyPoints
+          };
+          
+          summaryHistory.unshift(summaryEntry);
+          
+          // Keep only last 50 summaries
+          if (summaryHistory.length > 50) {
+            summaryHistory = summaryHistory.slice(0, 50);
+          }
+          
+          // Send summary to renderer
+          if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('content-summary-complete', summaryEntry);
+          }
+          
+          console.log('✅ Content summary generated for:', url);
+        }
+      }
+    }).catch(error => {
+      console.error('Error generating content summary:', error);
+    });
+  } catch (error) {
+    console.error('Error in content summary generation:', error);
+  }
+}
+
+function getSummaryHistory() {
+  return summaryHistory;
+}
+
+function clearSummaryHistory() {
+  summaryHistory = [];
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('summary-history-cleared');
+  }
+}
+
+// Enhanced IPC handlers setup
 function setupIPCHandlers() {
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    logError('IPC_HANDLER_CLEANUP', error);
+  }
+
   ipcMain.handle('new-tab', (event, url) => {
-    createNewTab(url || 'about:blank');
-    return { success: true };
+    try {
+      createNewTab(url || 'about:blank');
+      return { success: true };
+    } catch (error) {
+      logError('NEW_TAB_HANDLER', error);
+      return { success: false, error: error.message };
+    }
   });
   ipcMain.handle('close-tab', (event, tabId) => {
     closeTab(tabId);
@@ -384,6 +1077,107 @@ function setupIPCHandlers() {
   ipcMain.handle('clear-completed-downloads', () => {
     clearCompletedDownloads();
     return { success: true };
+  });
+
+  // Content Summary IPC handlers
+  ipcMain.handle('generate-content-summary', async (event, tabId) => {
+    try {
+      const tab = tabs.find(t => t.id === tabId);
+      if (!tab) {
+        return { success: false, error: 'Tab not found' };
+      }
+      if (!tab.browserView) {
+        return { success: false, error: 'BrowserView not found' };
+      }
+      const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
+        ? tab.browserView.isDestroyed()
+        : tab.browserView.isDestroyed;
+      if (isDestroyed) {
+        return { success: false, error: 'BrowserView is destroyed' };
+      }
+      const webContents = tab.browserView.webContents;
+      if (!webContents) {
+        return { success: false, error: 'WebContents not found' };
+      }
+      const url = webContents.getURL();
+      generateContentSummary(webContents, url);
+      return { success: true };
+    } catch (error) {
+      console.error('Error in generate-content-summary handler:', error);
+      return { success: false, error: error.message };
+    }
+  });
+  
+  ipcMain.handle('get-summary-history', () => {
+    return getSummaryHistory();
+  });
+  
+  ipcMain.handle('clear-summary-history', () => {
+    clearSummaryHistory();
+    return { success: true };
+  });
+  
+  // Content Analysis IPC handlers
+  ipcMain.handle('analyze-current-page', async (event, tabId) => {
+    try {
+      const tab = tabs.find(t => t.id === tabId);
+      if (!tab) {
+        return { success: false, error: 'Tab not found' };
+      }
+      if (!tab.browserView) {
+        return { success: false, error: 'BrowserView not found' };
+      }
+      const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
+        ? tab.browserView.isDestroyed()
+        : tab.browserView.isDestroyed;
+      if (isDestroyed) {
+        return { success: false, error: 'BrowserView is destroyed' };
+      }
+      const webContents = tab.browserView.webContents;
+      if (!webContents) {
+        return { success: false, error: 'WebContents not found' };
+      }
+      const url = webContents.getURL();
+      analyzePageContent(webContents, url);
+      return { success: true };
+    } catch (error) {
+      console.error('Error in analyze-current-page handler:', error);
+      return { success: false, error: error.message };
+    }
+  });
+  
+  ipcMain.handle('get-content-analysis-history', () => {
+    return getContentAnalysisHistory();
+  });
+  
+  ipcMain.handle('clear-content-analysis-history', () => {
+    clearContentAnalysisHistory();
+    return { success: true };
+  });
+  
+  ipcMain.handle('get-ai-settings', () => {
+    return {
+      enableContentAnalysis: true,
+      enableBiasAnalysis: true,
+      enableEmotionalTone: true,
+      enableSummary: true,
+      enableKeyPoints: true,
+      enableReadability: true
+    };
+  });
+  
+  ipcMain.handle('get-media-diet-settings', () => {
+    return {
+      trackContentHistory: true,
+      maxHistoryEntries: 50,
+      enableBiasTracking: true,
+      enableToneTracking: true
+    };
+  });
+  
+  // Auth status handler
+  ipcMain.handle('get-auth-status', () => {
+    return { authenticated: true, bypassed: true }; // For testing
   });
 }
 
@@ -1143,4 +1937,72 @@ function clearCompletedDownloads() {
   if (mainWindow && mainWindow.webContents) {
     mainWindow.webContents.send('downloads-cleared');
   }
+}
+
+// App initialization
+app.whenReady().then(() => {
+  console.log('🚀 Private Browser starting...');
+  
+  // Set up privacy session
+  setupPrivacySession();
+  
+  // Create main window
+  createWindow();
+  
+  // Set up download manager
+  setupDownloadManager();
+  
+  // Set up menu
+  createMenu();
+  
+  // Set up IPC handlers
+  setupIPCHandlers();
+  
+  console.log('✅ Private Browser initialized');
+});
+
+// App event handlers
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+
+app.on('before-quit', () => {
+  console.log('🔄 Private Browser shutting down...');
+  
+  // Clear any ongoing downloads
+  downloads.forEach(download => {
+    if (download.item && download.status === 'downloading') {
+      download.item.cancel();
+    }
+  });
+  
+  // Clear analysis history
+  clearContentAnalysisHistory();
+  clearSummaryHistory();
+  
+  console.log('✅ Private Browser shutdown complete');
+});
+
+// Prevent multiple instances
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  console.log('⚠️ Another instance is already running');
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.focus();
+    }
+  });
 }

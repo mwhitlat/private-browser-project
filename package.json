@@ -1,42 +1,53 @@
 {
   "name": "private-browser",
   "version": "1.0.0",
-  "description": "A privacy-focused web browser built with Electron",
+  "description": "A privacy-focused browser built with Electron",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev",
+    "dev": "NODE_ENV=development electron .",
+    "debug": "NODE_ENV=development electron . --debug",
     "build": "electron-builder",
-    "dist": "electron-builder --publish=never"
-  },
-  "keywords": ["browser", "privacy", "electron"],
-  "author": "Your Name",
-  "license": "MIT",
-  "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.6.4"
+    "check": "node debug.js",
+    "autofix": "node auto-debug-agent.js --quick",
+    "autodebug": "node auto-debug-agent.js",
+    "monitor": "node error-monitor.js",
+    "monitor:report": "node error-monitor.js --report"
   },
   "dependencies": {
-    "electron-store": "^8.1.0"
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
+    "cheerio": "^1.1.0",
+    "compromise": "^14.14.4",
+    "electron-store": "^8.1.0",
+    "keytar": "^7.9.0",
+    "natural": "^6.12.0",
+    "node-nlp": "^4.27.0",
+    "turndown": "^7.2.0"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.9.1"
   },
   "build": {
     "appId": "com.privatebrowser.app",
     "productName": "Private Browser",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "src/**/*",
-      "assets/**/*"
-    ],
     "mac": {
-      "category": "public.app-category.productivity"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": "AppImage"
+      "category": "public.app-category.productivity",
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "identity": null
     }
-  }
+  },
+  "keywords": [
+    "privacy",
+    "browser",
+    "electron",
+    "security"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }

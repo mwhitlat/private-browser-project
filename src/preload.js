@@ -36,6 +36,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openDownloadFile: (downloadId) => ipcRenderer.invoke('open-download-file', downloadId),
   clearCompletedDownloads: () => ipcRenderer.invoke('clear-completed-downloads'),
   
+  // Content Summary
+  generateContentSummary: (tabId) => ipcRenderer.invoke('generate-content-summary', tabId),
+  getSummaryHistory: () => ipcRenderer.invoke('get-summary-history'),
+  clearSummaryHistory: () => ipcRenderer.invoke('clear-summary-history'),
+  
+  // Content Analysis
+  analyzeCurrentPage: (tabId) => ipcRenderer.invoke('analyze-current-page', tabId),
+  getContentAnalysisHistory: () => ipcRenderer.invoke('get-content-analysis-history'),
+  clearContentAnalysisHistory: () => ipcRenderer.invoke('clear-content-analysis-history'),
+  getAiSettings: () => ipcRenderer.invoke('get-ai-settings'),
+  getMediaDietSettings: () => ipcRenderer.invoke('get-media-diet-settings'),
+  
   // Listen for events from main process
   onTabList: (callback) => ipcRenderer.on('tab-list', callback),
   onTabEvent: (callback) => ipcRenderer.on('tab-event', callback),
@@ -51,6 +63,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDownloadCompleted: (callback) => ipcRenderer.on('download-completed', callback),
   onDownloadCancelled: (callback) => ipcRenderer.on('download-cancelled', callback),
   onDownloadsCleared: (callback) => ipcRenderer.on('downloads-cleared', callback),
+  
+  // Content Summary events
+  onContentSummaryComplete: (callback) => ipcRenderer.on('content-summary-complete', callback),
+  onSummaryHistoryCleared: (callback) => ipcRenderer.on('summary-history-cleared', callback),
+  
+  // Content Analysis events
+  onContentAnalysisComplete: (callback) => ipcRenderer.on('content-analysis-complete', callback),
+  onContentAnalysisHistoryCleared: (callback) => ipcRenderer.on('content-analysis-history-cleared', callback),
   
   // Remove listeners
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)

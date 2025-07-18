@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>Private Browser</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.privatebrowser.app</string>
+    <key>CFBundleName</key>
+    <string>Private Browser</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>This app uses Face ID or Touch ID to authenticate you and protect your privacy.</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2024 Your Name</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSCameraUseContinuityCameraDeviceType</key>
+    <true/>
+</dict>
+</plist> 

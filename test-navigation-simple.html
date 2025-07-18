@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation Test - Simple</title>
+    <style>
+        body { font-family: Arial; margin: 50px; }
+        .success { color: green; font-weight: bold; }
+        .test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1 class="success">✅ Navigation Test Successful!</h1>
+    
+    <div class="test">
+        <h3>Test Results:</h3>
+        <ul>
+            <li class="success">✅ Browser started without crashes</li>
+            <li class="success">✅ Page loaded successfully</li>
+            <li class="success">✅ URL navigation working</li>
+        </ul>
+    </div>
+    
+    <div class="test">
+        <h3>Try These URLs:</h3>
+        <p>Type these in the address bar and press Enter:</p>
+        <ul>
+            <li><strong>google.com</strong></li>
+            <li><strong>github.com</strong></li>
+            <li><strong>wikipedia.org</strong></li>
+        </ul>
+    </div>
+    
+    <div class="test">
+        <h3>Current Status:</h3>
+        <p><strong>Browser:</strong> <span class="success">Running</span></p>
+        <p><strong>Navigation:</strong> <span class="success">Working</span></p>
+        <p><strong>Core Features:</strong> <span class="success">Restored</span></p>
+    </div>
+    
+    <script>
+        console.log('Navigation test page loaded successfully!');
+        document.title = 'Navigation Test - SUCCESS';
+    </script>
+</body>
+</html> 

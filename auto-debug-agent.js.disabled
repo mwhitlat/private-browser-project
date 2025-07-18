@@ -1,0 +1,668 @@
+#!/usr/bin/env node
+
+/**
+ * Auto-Debug Agent for Private Browser Project
+ * Automatically detects, categorizes, and fixes common Electron errors
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+class AutoDebugAgent {
+  constructor() {
+    this.issues = [];
+    this.fixes = [];
+    this.projectRoot = __dirname;
+    this.srcPath = path.join(this.projectRoot, 'src');
+    this.logFile = path.join(this.projectRoot, 'debug-logs.txt');
+    this.browserLogsFile = path.join(this.projectRoot, 'browser-logs.txt');
+  }
+
+  /**
+   * Main debugging workflow
+   */
+  async run() {
+    console.log('🤖 Auto-Debug Agent Starting...\n');
+    
+    // 1. Analyze current state
+    await this.analyzeCurrentState();
+    
+    // 2. Detect issues
+    await this.detectIssues();
+    
+    // 3. Categorize and prioritize
+    this.categorizeIssues();
+    
+    // 4. Generate fixes
+    await this.generateFixes();
+    
+    // 5. Apply fixes
+    await this.applyFixes();
+    
+    // 6. Verify fixes
+    await this.verifyFixes();
+    
+    // 7. Generate report
+    this.generateReport();
+  }
+
+  /**
+   * Analyze current project state
+   */
+  async analyzeCurrentState() {
+    console.log('📊 Analyzing current state...');
+    
+    this.state = {
+      files: {
+        main: fs.existsSync(path.join(this.srcPath, 'main.js')),
+        aiService: fs.existsSync(path.join(this.srcPath, 'ai-service.js')),
+        preload: fs.existsSync(path.join(this.srcPath, 'preload.js')),
+        renderer: fs.existsSync(path.join(this.srcPath, 'renderer.js')),
+        package: fs.existsSync(path.join(this.projectRoot, 'package.json'))
+      },
+      logs: {
+        debug: fs.existsSync(this.logFile),
+        browser: fs.existsSync(this.browserLogsFile)
+      },
+      processes: this.getRunningProcesses()
+    };
+    
+    console.log('✅ State analysis complete');
+  }
+
+  /**
+   * Detect common issues
+   */
+  async detectIssues() {
+    console.log('🔍 Detecting issues...');
+    
+    // Check for IPC handler duplicates
+    await this.detectIPCDuplicates();
+    
+    // Check for missing functions
+    await this.detectMissingFunctions();
+    
+    // Check for BrowserView API issues
+    await this.detectBrowserViewIssues();
+    
+    // Check for AI service errors
+    await this.detectAIServiceIssues();
+    
+    // Check for syntax errors
+    await this.detectSyntaxErrors();
+    
+    // Check for dependency issues
+    await this.detectDependencyIssues();
+    
+    // Check for file permission issues
+    await this.detectPermissionIssues();
+    
+    console.log(`✅ Detected ${this.issues.length} issues`);
+  }
+
+  /**
+   * Detect IPC handler duplicates
+   */
+  async detectIPCDuplicates() {
+    try {
+      const mainContent = fs.readFileSync(path.join(this.srcPath, 'main.js'), 'utf8');
+      const ipcHandlers = mainContent.match(/ipcMain\.handle\(['"`]([^'"`]+)['"`]/g);
+      
+      if (ipcHandlers) {
+        const handlerNames = ipcHandlers.map(h => h.match(/['"`]([^'"`]+)['"`]/)[1]);
+        const duplicates = handlerNames.filter((name, index) => handlerNames.indexOf(name) !== index);
+        
+        duplicates.forEach(duplicate => {
+          this.issues.push({
+            type: 'IPC_DUPLICATE',
+            severity: 'HIGH',
+            message: `Duplicate IPC handler: ${duplicate}`,
+            location: 'main.js',
+            fix: 'removeHandler'
+          });
+        });
+      }
+    } catch (error) {
+      this.issues.push({
+        type: 'FILE_READ_ERROR',
+        severity: 'MEDIUM',
+        message: `Cannot read main.js: ${error.message}`,
+        location: 'main.js'
+      });
+    }
+  }
+
+  /**
+   * Detect missing functions
+   */
+  async detectMissingFunctions() {
+    const missingFunctions = [
+      { name: 'getStoreValue', file: 'main.js' },
+      { name: 'analyzeContent', file: 'main.js' },
+      { name: 'DOMParser', file: 'main.js' }
+    ];
+
+    try {
+      const mainContent = fs.readFileSync(path.join(this.srcPath, 'main.js'), 'utf8');
+      
+      missingFunctions.forEach(func => {
+        if (mainContent.includes(func.name) && !mainContent.includes(`function ${func.name}`)) {
+          this.issues.push({
+            type: 'MISSING_FUNCTION',
+            severity: 'HIGH',
+            message: `Missing function: ${func.name}`,
+            location: func.file,
+            fix: 'addFunction',
+            data: { functionName: func.name }
+          });
+        }
+      });
+    } catch (error) {
+      // File read error already handled above
+    }
+  }
+
+  /**
+   * Detect BrowserView API issues
+   */
+  async detectBrowserViewIssues() {
+    try {
+      const mainContent = fs.readFileSync(path.join(this.srcPath, 'main.js'), 'utf8');
+      
+      // Check for unsafe isDestroyed calls
+      const isDestroyedCalls = mainContent.match(/\.isDestroyed\(\)/g);
+      if (isDestroyedCalls) {
+        const unsafeCalls = mainContent.match(/[^&]\.isDestroyed\(\)/g);
+        if (unsafeCalls && unsafeCalls.length > 0) {
+          this.issues.push({
+            type: 'BROWSERVIEW_API',
+            severity: 'HIGH',
+            message: 'Unsafe BrowserView.isDestroyed() calls detected',
+            location: 'main.js',
+            fix: 'addNullChecks'
+          });
+        }
+      }
+    } catch (error) {
+      // File read error already handled
+    }
+  }
+
+  /**
+   * Detect AI service errors
+   */
+  async detectAIServiceIssues() {
+    try {
+      const aiContent = fs.readFileSync(path.join(this.srcPath, 'ai-service.js'), 'utf8');
+      
+      // Check for unsafe property access
+      if (aiContent.includes('word.text.toLowerCase()') && !aiContent.includes('word.text')) {
+        this.issues.push({
+          type: 'AI_SERVICE_ERROR',
+          severity: 'MEDIUM',
+          message: 'Unsafe property access in AI service',
+          location: 'ai-service.js',
+          fix: 'addNullChecks'
+        });
+      }
+    } catch (error) {
+      this.issues.push({
+        type: 'FILE_READ_ERROR',
+        severity: 'MEDIUM',
+        message: `Cannot read ai-service.js: ${error.message}`,
+        location: 'ai-service.js'
+      });
+    }
+  }
+
+  /**
+   * Detect syntax errors
+   */
+  async detectSyntaxErrors() {
+    const files = ['main.js', 'ai-service.js', 'preload.js', 'renderer.js'];
+    
+    files.forEach(file => {
+      const filePath = path.join(this.srcPath, file);
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf8');
+          
+          // Check for common syntax issues
+          if (content.includes('const {') && !content.includes('}')) {
+            this.issues.push({
+              type: 'SYNTAX_ERROR',
+              severity: 'HIGH',
+              message: 'Incomplete destructuring assignment',
+              location: file,
+              fix: 'fixSyntax'
+            });
+          }
+          
+          // Check for unclosed brackets/parentheses
+          const openBrackets = (content.match(/\{/g) || []).length;
+          const closeBrackets = (content.match(/\}/g) || []).length;
+          if (openBrackets !== closeBrackets) {
+            this.issues.push({
+              type: 'SYNTAX_ERROR',
+              severity: 'HIGH',
+              message: 'Mismatched brackets',
+              location: file,
+              fix: 'fixBrackets'
+            });
+          }
+        } catch (error) {
+          // File read error already handled
+        }
+      }
+    });
+  }
+
+  /**
+   * Detect dependency issues
+   */
+  async detectDependencyIssues() {
+    try {
+      const packagePath = path.join(this.projectRoot, 'package.json');
+      if (fs.existsSync(packagePath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+        const requiredDeps = ['electron', 'electron-store'];
+        
+        requiredDeps.forEach(dep => {
+          if (!packageJson.dependencies?.[dep] && !packageJson.devDependencies?.[dep]) {
+            this.issues.push({
+              type: 'MISSING_DEPENDENCY',
+              severity: 'HIGH',
+              message: `Missing dependency: ${dep}`,
+              location: 'package.json',
+              fix: 'installDependency',
+              data: { dependency: dep }
+            });
+          }
+        });
+      }
+    } catch (error) {
+      this.issues.push({
+        type: 'PACKAGE_JSON_ERROR',
+        severity: 'HIGH',
+        message: `Error reading package.json: ${error.message}`,
+        location: 'package.json'
+      });
+    }
+  }
+
+  /**
+   * Detect permission issues
+   */
+  async detectPermissionIssues() {
+    try {
+      // Check if we can write to the project directory
+      const testFile = path.join(this.projectRoot, '.test-write');
+      fs.writeFileSync(testFile, 'test');
+      fs.unlinkSync(testFile);
+    } catch (error) {
+      this.issues.push({
+        type: 'PERMISSION_ERROR',
+        severity: 'HIGH',
+        message: `Permission error: ${error.message}`,
+        location: 'project directory',
+        fix: 'fixPermissions'
+      });
+    }
+  }
+
+  /**
+   * Categorize and prioritize issues
+   */
+  categorizeIssues() {
+    console.log('📋 Categorizing issues...');
+    
+    this.issues.sort((a, b) => {
+      const severityOrder = { 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+      return severityOrder[b.severity] - severityOrder[a.severity];
+    });
+    
+    const categories = {
+      CRITICAL: this.issues.filter(i => i.severity === 'HIGH'),
+      IMPORTANT: this.issues.filter(i => i.severity === 'MEDIUM'),
+      MINOR: this.issues.filter(i => i.severity === 'LOW')
+    };
+    
+    console.log(`📊 Categories: ${categories.CRITICAL.length} critical, ${categories.IMPORTANT.length} important, ${categories.MINOR.length} minor`);
+  }
+
+  /**
+   * Generate fixes for detected issues
+   */
+  async generateFixes() {
+    console.log('🔧 Generating fixes...');
+    
+    this.issues.forEach(issue => {
+      const fix = this.generateFix(issue);
+      if (fix) {
+        this.fixes.push(fix);
+      }
+    });
+    
+    console.log(`✅ Generated ${this.fixes.length} fixes`);
+  }
+
+  /**
+   * Generate specific fix for an issue
+   */
+  generateFix(issue) {
+    switch (issue.fix) {
+      case 'removeHandler':
+        return {
+          type: 'IPC_CLEANUP',
+          file: path.join(this.srcPath, 'main.js'),
+          description: `Remove duplicate IPC handler: ${issue.message}`,
+          apply: () => this.fixIPCDuplicates()
+        };
+        
+      case 'addFunction':
+        return {
+          type: 'ADD_FUNCTION',
+          file: path.join(this.srcPath, 'main.js'),
+          description: `Add missing function: ${issue.data.functionName}`,
+          apply: () => this.addMissingFunction(issue.data.functionName)
+        };
+        
+      case 'addNullChecks':
+        return {
+          type: 'ADD_NULL_CHECKS',
+          file: path.join(this.srcPath, issue.location),
+          description: `Add null checks for ${issue.location}`,
+          apply: () => this.addNullChecks(issue.location)
+        };
+        
+      case 'installDependency':
+        return {
+          type: 'INSTALL_DEPENDENCY',
+          file: 'package.json',
+          description: `Install missing dependency: ${issue.data.dependency}`,
+          apply: () => this.installDependency(issue.data.dependency)
+        };
+        
+      case 'fixPermissions':
+        return {
+          type: 'FIX_PERMISSIONS',
+          file: 'project directory',
+          description: 'Fix file permissions',
+          apply: () => this.fixPermissions()
+        };
+        
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Apply generated fixes
+   */
+  async applyFixes() {
+    console.log('🚀 Applying fixes...');
+    
+    for (const fix of this.fixes) {
+      try {
+        console.log(`  Applying: ${fix.description}`);
+        await fix.apply();
+        console.log(`  ✅ Applied: ${fix.description}`);
+      } catch (error) {
+        console.log(`  ❌ Failed: ${fix.description} - ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * Fix IPC duplicates
+   */
+  async fixIPCDuplicates() {
+    const mainPath = path.join(this.srcPath, 'main.js');
+    let content = fs.readFileSync(mainPath, 'utf8');
+    
+    // Add handler cleanup at the beginning of setupIPCHandlers
+    const setupIPCHandlersMatch = content.match(/function setupIPCHandlers\(\) \{/);
+    if (setupIPCHandlersMatch) {
+      const cleanupCode = `
+  // Clear existing handlers to prevent duplicates
+  try {
+    ipcMain.removeHandler('new-tab');
+    ipcMain.removeHandler('close-tab');
+    ipcMain.removeHandler('switch-tab');
+    ipcMain.removeHandler('reorder-tabs');
+    ipcMain.removeHandler('navigate');
+    ipcMain.removeHandler('go-back');
+    ipcMain.removeHandler('go-forward');
+    ipcMain.removeHandler('reload');
+    ipcMain.removeHandler('get-current-url');
+    ipcMain.removeHandler('get-navigation-state');
+    ipcMain.removeHandler('add-bookmark');
+    ipcMain.removeHandler('remove-bookmark');
+    ipcMain.removeHandler('get-bookmarks');
+    ipcMain.removeHandler('hide-browser-view');
+    ipcMain.removeHandler('show-browser-view');
+    ipcMain.removeHandler('get-downloads');
+    ipcMain.removeHandler('cancel-download');
+    ipcMain.removeHandler('open-download-folder');
+    ipcMain.removeHandler('open-download-file');
+    ipcMain.removeHandler('clear-completed-downloads');
+    ipcMain.removeHandler('generate-content-summary');
+    ipcMain.removeHandler('get-summary-history');
+    ipcMain.removeHandler('clear-summary-history');
+    ipcMain.removeHandler('analyze-current-page');
+    ipcMain.removeHandler('get-content-analysis-history');
+    ipcMain.removeHandler('clear-content-analysis-history');
+    ipcMain.removeHandler('get-ai-settings');
+    ipcMain.removeHandler('get-media-diet-settings');
+    ipcMain.removeHandler('get-auth-status');
+    ipcMain.removeHandler('lock-browser');
+  } catch (error) {
+    console.error('Error cleaning up IPC handlers:', error);
+  }
+`;
+      
+      content = content.replace(
+        /function setupIPCHandlers\(\) \{/,
+        `function setupIPCHandlers() {${cleanupCode}`
+      );
+      
+      fs.writeFileSync(mainPath, content);
+    }
+  }
+
+  /**
+   * Add missing function
+   */
+  async addMissingFunction(functionName) {
+    const mainPath = path.join(this.srcPath, 'main.js');
+    let content = fs.readFileSync(mainPath, 'utf8');
+    
+    const functionCode = `
+// Missing utility functions
+function ${functionName}(key, defaultValue = null) {
+  try {
+    return store.get(key, defaultValue);
+  } catch (error) {
+    console.error('Error in ${functionName}:', error);
+    return defaultValue;
+  }
+}
+`;
+    
+    // Add before the store initialization
+    const storeMatch = content.match(/const store = new Store/);
+    if (storeMatch) {
+      content = content.replace(
+        /const store = new Store/,
+        `${functionCode}\nconst store = new Store`
+      );
+      fs.writeFileSync(mainPath, content);
+    }
+  }
+
+  /**
+   * Add null checks
+   */
+  async addNullChecks(fileName) {
+    const filePath = path.join(this.srcPath, fileName);
+    let content = fs.readFileSync(filePath, 'utf8');
+    
+    if (fileName === 'ai-service.js') {
+      // Fix the word.text issue
+      content = content.replace(
+        /words\.forEach\(word => \{[\s\S]*?const cleanWord = word\.text\.toLowerCase\(\)/,
+        `words.forEach(word => {
+        // Add null check for word.text
+        if (!word || !word.text) {
+          syllableCount += 1; // Default to 1 syllable for undefined words
+          return;
+        }
+        
+        const cleanWord = word.text.toLowerCase()`
+      );
+    } else if (fileName === 'main.js') {
+      // Fix BrowserView isDestroyed calls
+      content = content.replace(
+        /tab\.browserView\.isDestroyed\(\)/g,
+        'tab.browserView.isDestroyed && tab.browserView.isDestroyed()'
+      );
+    }
+    
+    fs.writeFileSync(filePath, content);
+  }
+
+  /**
+   * Install dependency
+   */
+  async installDependency(dependency) {
+    try {
+      execSync(`npm install ${dependency}`, { cwd: this.projectRoot, stdio: 'pipe' });
+    } catch (error) {
+      throw new Error(`Failed to install ${dependency}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Fix permissions
+   */
+  async fixPermissions() {
+    try {
+      execSync(`chmod -R 755 "${this.projectRoot}"`, { stdio: 'pipe' });
+    } catch (error) {
+      throw new Error(`Failed to fix permissions: ${error.message}`);
+    }
+  }
+
+  /**
+   * Verify fixes
+   */
+  async verifyFixes() {
+    console.log('✅ Verifying fixes...');
+    
+    // Re-run detection to see if issues are resolved
+    const originalIssues = this.issues.length;
+    this.issues = [];
+    
+    await this.detectIssues();
+    
+    const resolvedIssues = originalIssues - this.issues.length;
+    console.log(`✅ Resolved ${resolvedIssues} issues`);
+  }
+
+  /**
+   * Generate final report
+   */
+  generateReport() {
+    console.log('\n📊 Auto-Debug Report');
+    console.log('===================');
+    console.log(`Total issues detected: ${this.issues.length}`);
+    console.log(`Fixes applied: ${this.fixes.length}`);
+    
+    if (this.issues.length > 0) {
+      console.log('\n🚨 Remaining Issues:');
+      this.issues.forEach((issue, index) => {
+        console.log(`${index + 1}. [${issue.severity}] ${issue.message} (${issue.location})`);
+      });
+    }
+    
+    if (this.fixes.length > 0) {
+      console.log('\n✅ Applied Fixes:');
+      this.fixes.forEach((fix, index) => {
+        console.log(`${index + 1}. ${fix.description}`);
+      });
+    }
+    
+    // Save report to file
+    const report = {
+      timestamp: new Date().toISOString(),
+      issues: this.issues,
+      fixes: this.fixes.map(f => ({ description: f.description, type: f.type })),
+      summary: {
+        totalIssues: this.issues.length,
+        totalFixes: this.fixes.length,
+        criticalIssues: this.issues.filter(i => i.severity === 'HIGH').length
+      }
+    };
+    
+    fs.writeFileSync(
+      path.join(this.projectRoot, 'auto-debug-report.json'),
+      JSON.stringify(report, null, 2)
+    );
+    
+    console.log('\n📄 Report saved to: auto-debug-report.json');
+  }
+
+  /**
+   * Get running processes
+   */
+  getRunningProcesses() {
+    try {
+      const output = execSync('ps aux | grep -i electron', { encoding: 'utf8' });
+      return output.split('\n').filter(line => line.includes('electron') && !line.includes('grep'));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Quick fix mode - apply common fixes without analysis
+   */
+  async quickFix() {
+    console.log('⚡ Quick Fix Mode - Applying common fixes...');
+    
+    const quickFixes = [
+      () => this.fixIPCDuplicates(),
+      () => this.addMissingFunction('getStoreValue'),
+      () => this.addMissingFunction('analyzeContent'),
+      () => this.addNullChecks('ai-service.js'),
+      () => this.addNullChecks('main.js')
+    ];
+    
+    for (const fix of quickFixes) {
+      try {
+        await fix();
+        console.log('✅ Applied quick fix');
+      } catch (error) {
+        console.log(`❌ Quick fix failed: ${error.message}`);
+      }
+    }
+    
+    console.log('✅ Quick fix mode complete');
+  }
+}
+
+// CLI interface
+if (require.main === module) {
+  const agent = new AutoDebugAgent();
+  
+  const args = process.argv.slice(2);
+  
+  if (args.includes('--quick')) {
+    agent.quickFix();
+  } else {
+    agent.run();
+  }
+}
+
+module.exports = AutoDebugAgent; 

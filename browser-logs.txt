@@ -1,0 +1,56 @@
+
+> private-browser@1.0.0 start
+> electron .
+
+Privacy features temporarily disabled for testing
+Privacy session temporarily disabled for testing
+(node:49903) UnhandledPromiseRejectionWarning: Error: Attempted to register a second handler for 'lock-browser'
+    at IpcMainImpl.handle (node:electron/js2c/browser_init:2:94475)
+    at setupIPCHandlers (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:655:11)
+    at createWindow (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:270:3)
+    at /Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:1373:3
+(Use `Electron --trace-warnings ...` to show where the warning was created)
+(node:49903) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
+Error occurred in handler for 'get-navigation-state': Error: No handler registered for 'get-navigation-state'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'get-ai-settings': Error: No handler registered for 'get-ai-settings'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'get-media-diet-settings': Error: No handler registered for 'get-media-diet-settings'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'get-bookmarks': Error: No handler registered for 'get-bookmarks'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'get-auth-status': Error: No handler registered for 'get-auth-status'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Bypassing authentication for testing...
+Creating initial tab for testing...
+Error creating new tab: TypeError: tab.browserView.isDestroyed is not a function
+    at switchToTab (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:455:43)
+    at createNewTab (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:394:5)
+    at BrowserWindow.<anonymous> (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:203:5)
+    at Object.onceWrapper (node:events:631:28)
+    at BrowserWindow.emit (node:events:517:28)
+    at node:electron/js2c/browser_init:2:81087
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+Error getting tab title: TypeError: tab.browserView.isDestroyed is not a function
+    at updateTabMeta (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:470:78)
+    at WebContents.<anonymous> (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:375:7)
+    at WebContents.emit (node:events:517:28)
+Error getting tab title: TypeError: tab.browserView.isDestroyed is not a function
+    at updateTabMeta (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:470:78)
+    at WebContents.<anonymous> (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:371:7)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'get-navigation-state': Error: No handler registered for 'get-navigation-state'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error occurred in handler for 'navigate': Error: No handler registered for 'navigate'
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:78076)
+    at WebContents.emit (node:events:517:28)
+Error in page load analysis: ReferenceError: getStoreValue is not defined
+    at Timeout._onTimeout (/Users/matthewwhitlatch/Documents/private-browser-project/src/main.js:2209:30)
+    at listOnTimeout (node:internal/timers:569:17)
+    at process.processTimers (node:internal/timers:512:7)

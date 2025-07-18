@@ -1,0 +1,402 @@
+#!/usr/bin/env node
+
+/**
+ * Real-time Error Monitor for Private Browser
+ * Watches for errors and automatically triggers fixes
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
+const AutoDebugAgent = require('./auto-debug-agent');
+
+class ErrorMonitor {
+  constructor() {
+    this.projectRoot = __dirname;
+    this.logFile = path.join(this.projectRoot, 'browser-logs.txt');
+    this.errorPatterns = [
+      // IPC Errors
+      /Attempted to register a second handler for/,
+      /No handler registered for/,
+      /Error occurred in handler for/,
+      
+      // BrowserView Errors
+      /tab\.browserView\.isDestroyed is not a function/,
+      /BrowserView.*isDestroyed/,
+      
+      // Function Errors
+      /ReferenceError: (\w+) is not defined/,
+      /TypeError: Cannot read properties of undefined/,
+      
+      // AI Service Errors
+      /Error calculating readability score/,
+      /Error analyzing page content/,
+      
+      // Permission Errors
+      /Permission denied/,
+      /EACCES/,
+      
+      // File System Errors
+      /ENOENT/,
+      /File currently in use/,
+      
+      // Process Errors
+      /UnhandledPromiseRejectionWarning/,
+      /UncaughtException/
+    ];
+    
+    this.errorCounts = {};
+    this.lastFixTime = 0;
+    this.fixCooldown = 30000; // 30 seconds between fixes
+  }
+
+  /**
+   * Start monitoring
+   */
+  async start() {
+    console.log('👁️  Starting Real-time Error Monitor...');
+    console.log(`📁 Monitoring: ${this.logFile}`);
+    console.log('🔄 Auto-fix enabled (30s cooldown)');
+    console.log('Press Ctrl+C to stop\n');
+
+    // Initial scan
+    await this.scanForErrors();
+
+    // Watch for file changes
+    this.watchLogFile();
+
+    // Periodic scans
+    setInterval(() => this.scanForErrors(), 5000);
+
+    // Start browser with monitoring
+    this.startBrowserWithMonitoring();
+  }
+
+  /**
+   * Watch log file for changes
+   */
+  watchLogFile() {
+    if (fs.existsSync(this.logFile)) {
+      fs.watch(this.logFile, (eventType, filename) => {
+        if (eventType === 'change') {
+          this.scanForErrors();
+        }
+      });
+    }
+  }
+
+  /**
+   * Scan log file for errors
+   */
+  async scanForErrors() {
+    if (!fs.existsSync(this.logFile)) {
+      return;
+    }
+
+    try {
+      const content = fs.readFileSync(this.logFile, 'utf8');
+      const lines = content.split('\n');
+      
+      const newErrors = [];
+      
+      lines.forEach((line, index) => {
+        this.errorPatterns.forEach(pattern => {
+          if (pattern.test(line)) {
+            const errorType = this.categorizeError(line);
+            newErrors.push({
+              type: errorType,
+              line: line.trim(),
+              lineNumber: index + 1,
+              timestamp: new Date().toISOString()
+            });
+            
+            // Count errors
+            this.errorCounts[errorType] = (this.errorCounts[errorType] || 0) + 1;
+          }
+        });
+      });
+
+      if (newErrors.length > 0) {
+        await this.handleErrors(newErrors);
+      }
+    } catch (error) {
+      console.log(`❌ Error reading log file: ${error.message}`);
+    }
+  }
+
+  /**
+   * Categorize error type
+   */
+  categorizeError(errorLine) {
+    if (/Attempted to register a second handler/.test(errorLine)) {
+      return 'IPC_DUPLICATE';
+    }
+    if (/No handler registered for/.test(errorLine)) {
+      return 'IPC_MISSING';
+    }
+    if (/isDestroyed is not a function/.test(errorLine)) {
+      return 'BROWSERVIEW_API';
+    }
+    if (/ReferenceError.*is not defined/.test(errorLine)) {
+      return 'MISSING_FUNCTION';
+    }
+    if (/TypeError: Cannot read properties of undefined/.test(errorLine)) {
+      return 'NULL_REFERENCE';
+    }
+    if (/Error calculating readability score/.test(errorLine)) {
+      return 'AI_SERVICE_ERROR';
+    }
+    if (/Permission denied|EACCES/.test(errorLine)) {
+      return 'PERMISSION_ERROR';
+    }
+    if (/File currently in use/.test(errorLine)) {
+      return 'FILE_LOCKED';
+    }
+    if (/UnhandledPromiseRejectionWarning/.test(errorLine)) {
+      return 'UNHANDLED_PROMISE';
+    }
+    return 'UNKNOWN';
+  }
+
+  /**
+   * Handle detected errors
+   */
+  async handleErrors(errors) {
+    console.log(`🚨 Detected ${errors.length} new error(s):`);
+    
+    errors.forEach(error => {
+      console.log(`  [${error.type}] ${error.line.substring(0, 80)}...`);
+    });
+
+    // Check if we should auto-fix
+    const now = Date.now();
+    if (now - this.lastFixTime > this.fixCooldown) {
+      await this.autoFix(errors);
+      this.lastFixTime = now;
+    } else {
+      const remainingCooldown = Math.ceil((this.fixCooldown - (now - this.lastFixTime)) / 1000);
+      console.log(`⏳ Auto-fix on cooldown (${remainingCooldown}s remaining)`);
+    }
+
+    // Show error statistics
+    this.showErrorStats();
+  }
+
+  /**
+   * Auto-fix based on error types
+   */
+  async autoFix(errors) {
+    console.log('\n🔧 Auto-fixing errors...');
+    
+    const errorTypes = [...new Set(errors.map(e => e.type))];
+    const agent = new AutoDebugAgent();
+    
+    // Prioritize fixes based on error types
+    const fixPriority = [
+      'IPC_DUPLICATE',
+      'MISSING_FUNCTION', 
+      'BROWSERVIEW_API',
+      'AI_SERVICE_ERROR',
+      'PERMISSION_ERROR',
+      'FILE_LOCKED',
+      'UNHANDLED_PROMISE'
+    ];
+
+    for (const errorType of fixPriority) {
+      if (errorTypes.includes(errorType)) {
+        try {
+          await this.applySpecificFix(errorType, agent);
+        } catch (error) {
+          console.log(`❌ Failed to fix ${errorType}: ${error.message}`);
+        }
+      }
+    }
+
+    console.log('✅ Auto-fix complete');
+  }
+
+  /**
+   * Apply specific fix based on error type
+   */
+  async applySpecificFix(errorType, agent) {
+    switch (errorType) {
+      case 'IPC_DUPLICATE':
+        console.log('  🔧 Fixing IPC duplicates...');
+        await agent.fixIPCDuplicates();
+        break;
+        
+      case 'MISSING_FUNCTION':
+        console.log('  🔧 Adding missing functions...');
+        await agent.addMissingFunction('getStoreValue');
+        await agent.addMissingFunction('analyzeContent');
+        break;
+        
+      case 'BROWSERVIEW_API':
+        console.log('  🔧 Fixing BrowserView API issues...');
+        await agent.addNullChecks('main.js');
+        break;
+        
+      case 'AI_SERVICE_ERROR':
+        console.log('  🔧 Fixing AI service errors...');
+        await agent.addNullChecks('ai-service.js');
+        break;
+        
+      case 'PERMISSION_ERROR':
+        console.log('  🔧 Fixing permissions...');
+        await agent.fixPermissions();
+        break;
+        
+      case 'FILE_LOCKED':
+        console.log('  🔧 Clearing file locks...');
+        await this.clearFileLocks();
+        break;
+        
+      case 'UNHANDLED_PROMISE':
+        console.log('  🔧 Adding error handlers...');
+        await this.addErrorHandlers();
+        break;
+    }
+  }
+
+  /**
+   * Clear file locks
+   */
+  async clearFileLocks() {
+    try {
+      // Kill any existing Electron processes
+      const { execSync } = require('child_process');
+      execSync('pkill -f electron', { stdio: 'pipe' });
+      
+      // Clear Electron cache
+      const cacheDir = path.join(process.env.HOME, 'Library/Application Support/private-browser');
+      if (fs.existsSync(cacheDir)) {
+        execSync(`rm -rf "${cacheDir}"`, { stdio: 'pipe' });
+      }
+      
+      console.log('  ✅ Cleared file locks and cache');
+    } catch (error) {
+      console.log(`  ⚠️  Could not clear locks: ${error.message}`);
+    }
+  }
+
+  /**
+   * Add error handlers to main.js
+   */
+  async addErrorHandlers() {
+    const mainPath = path.join(this.projectRoot, 'src/main.js');
+    if (!fs.existsSync(mainPath)) return;
+
+    let content = fs.readFileSync(mainPath, 'utf8');
+    
+    // Check if error handlers already exist
+    if (content.includes('process.on(\'uncaughtException\'')) {
+      return;
+    }
+
+    const errorHandlers = `
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+`;
+
+    // Add at the beginning of the file
+    content = errorHandlers + '\n' + content;
+    fs.writeFileSync(mainPath, content);
+    
+    console.log('  ✅ Added error handlers');
+  }
+
+  /**
+   * Show error statistics
+   */
+  showErrorStats() {
+    console.log('\n📊 Error Statistics:');
+    Object.entries(this.errorCounts)
+      .sort(([,a], [,b]) => b - a)
+      .forEach(([type, count]) => {
+        console.log(`  ${type}: ${count} occurrence(s)`);
+      });
+  }
+
+  /**
+   * Start browser with monitoring
+   */
+  startBrowserWithMonitoring() {
+    console.log('🚀 Starting browser with monitoring...');
+    
+    const browser = spawn('npm', ['start'], {
+      cwd: this.projectRoot,
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    // Monitor browser output
+    browser.stdout.on('data', (data) => {
+      const output = data.toString();
+      console.log(`[BROWSER] ${output.trim()}`);
+      
+      // Check for errors in real-time
+      this.errorPatterns.forEach(pattern => {
+        if (pattern.test(output)) {
+          console.log(`🚨 Real-time error detected: ${output.trim()}`);
+        }
+      });
+    });
+
+    browser.stderr.on('data', (data) => {
+      const error = data.toString();
+      console.log(`[ERROR] ${error.trim()}`);
+    });
+
+    browser.on('close', (code) => {
+      console.log(`\n🔚 Browser process exited with code ${code}`);
+      process.exit(code);
+    });
+
+    // Handle process termination
+    process.on('SIGINT', () => {
+      console.log('\n🛑 Stopping monitor and browser...');
+      browser.kill();
+      process.exit(0);
+    });
+  }
+
+  /**
+   * Generate error report
+   */
+  generateReport() {
+    const report = {
+      timestamp: new Date().toISOString(),
+      errorCounts: this.errorCounts,
+      totalErrors: Object.values(this.errorCounts).reduce((a, b) => a + b, 0),
+      mostCommonError: Object.entries(this.errorCounts)
+        .sort(([,a], [,b]) => b - a)[0]
+    };
+
+    fs.writeFileSync(
+      path.join(this.projectRoot, 'error-monitor-report.json'),
+      JSON.stringify(report, null, 2)
+    );
+
+    console.log('\n📄 Error report saved to: error-monitor-report.json');
+  }
+}
+
+// CLI interface
+if (require.main === module) {
+  const monitor = new ErrorMonitor();
+  
+  const args = process.argv.slice(2);
+  
+  if (args.includes('--report')) {
+    monitor.generateReport();
+  } else {
+    monitor.start();
+  }
+}
+
+module.exports = ErrorMonitor; 

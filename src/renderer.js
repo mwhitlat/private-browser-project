@@ -35,6 +35,16 @@ let privacyStats = {
 let downloads = [];
 let downloadNotifications = [];
 
+// Content Analysis state
+let contentAnalysisHistory = [];
+let currentAnalysis = null;
+
+// Content Summary state
+let summaryHistory = [];
+let currentSummary = null;
+let speechSynthesis = null;
+let isReading = false;
+
 // DOM elements
 const addressBar = document.getElementById('addressBar');
 const backBtn = document.getElementById('backBtn');
@@ -51,6 +61,14 @@ const privacyDashboardModal = document.getElementById('privacyDashboardModal');
 const downloadManagerModal = document.getElementById('downloadManagerModal');
 const securityIndicator = document.getElementById('securityIndicator');
 const privacyIndicator = document.getElementById('privacyIndicator');
+
+// Content Analysis UI elements
+const contentAnalysisModal = document.getElementById('contentAnalysisModal');
+const contentAnalysisBtn = document.getElementById('contentAnalysisBtn');
+
+// Content Summary UI elements
+const contentSummaryModal = document.getElementById('contentSummaryModal');
+const contentSummaryBtn = document.getElementById('contentSummaryBtn');
 // Initialize the browser
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, starting browser initialization');
@@ -193,6 +211,82 @@ function setupEventListeners() {
         });
     } else {
         console.error('Close privacy dashboard button not found!');
+    }
+    
+    // Content Summary button
+    if (contentSummaryBtn) {
+        contentSummaryBtn.addEventListener('click', () => {
+            console.log('Content summary button clicked');
+            if (contentSummaryModal) {
+                console.log('Showing content summary modal');
+                contentSummaryModal.classList.add('show');
+                loadSummaryHistory();
+                // Temporarily hide BrowserView to ensure modal is visible
+                window.electronAPI.hideBrowserView();
+            } else {
+                console.error('Content summary modal not found!');
+            }
+        });
+    }
+    
+    // Content Analysis button
+    if (contentAnalysisBtn) {
+        contentAnalysisBtn.addEventListener('click', () => {
+            console.log('Content analysis button clicked');
+            if (contentAnalysisModal) {
+                console.log('Showing content analysis modal');
+                contentAnalysisModal.classList.add('show');
+                loadContentAnalysisHistory();
+                // Temporarily hide BrowserView to ensure modal is visible
+                window.electronAPI.hideBrowserView();
+            } else {
+                console.error('Content analysis modal not found!');
+            }
+        });
+    }
+    
+    // Content Summary modal close
+    const closeContentSummaryBtn = document.getElementById('closeContentSummaryModal');
+    if (closeContentSummaryBtn) {
+        closeContentSummaryBtn.addEventListener('click', () => {
+            console.log('Closing content summary modal');
+            contentSummaryModal.classList.remove('show');
+            stopVoiceReading(); // Stop reading when closing modal
+            // Show BrowserView again
+            window.electronAPI.showBrowserView();
+        });
+    }
+    
+    // Click outside content summary modal to close
+    if (contentSummaryModal) {
+        contentSummaryModal.addEventListener('click', (e) => {
+            if (e.target === contentSummaryModal) {
+                contentSummaryModal.classList.remove('show');
+                stopVoiceReading(); // Stop reading when closing modal
+                window.electronAPI.showBrowserView();
+            }
+        });
+    }
+    
+    // Content Analysis modal close
+    const closeContentAnalysisBtn = document.getElementById('closeContentAnalysisModal');
+    if (closeContentAnalysisBtn) {
+        closeContentAnalysisBtn.addEventListener('click', () => {
+            console.log('Closing content analysis modal');
+            contentAnalysisModal.classList.remove('show');
+            // Show BrowserView again
+            window.electronAPI.showBrowserView();
+        });
+    }
+    
+    // Click outside content analysis modal to close
+    if (contentAnalysisModal) {
+        contentAnalysisModal.addEventListener('click', (e) => {
+            if (e.target === contentAnalysisModal) {
+                contentAnalysisModal.classList.remove('show');
+                window.electronAPI.showBrowserView();
+            }
+        });
     }
     
     // Click outside privacy dashboard modal to close
@@ -433,6 +527,9 @@ function setupEventListeners() {
             }
         }
     });
+    
+    // Voice control event listeners
+    setupVoiceControls();
 }
 
 function setupIPCEventListeners() {
@@ -505,6 +602,46 @@ function setupIPCEventListeners() {
     window.electronAPI.onDownloadsCleared((event) => {
         downloads = downloads.filter(d => d.status === 'downloading');
         updateDownloadManager();
+    });
+    
+    // Content Analysis events
+    window.electronAPI.onContentAnalysisComplete((event, analysisEntry) => {
+        contentAnalysisHistory.unshift(analysisEntry);
+        currentAnalysis = analysisEntry;
+        
+        // Show notification for new analysis
+        showNotification(`Content analysis completed for: ${analysisEntry.title}`);
+        
+        // Update UI if modal is open
+        if (contentAnalysisModal && contentAnalysisModal.classList.contains('show')) {
+            updateContentAnalysisDisplay();
+        }
+    });
+    
+    window.electronAPI.onContentAnalysisHistoryCleared((event) => {
+        contentAnalysisHistory = [];
+        currentAnalysis = null;
+        updateContentAnalysisDisplay();
+    });
+    
+    // Content Summary events
+    window.electronAPI.onContentSummaryComplete((event, summaryEntry) => {
+        summaryHistory.unshift(summaryEntry);
+        currentSummary = summaryEntry;
+        
+        // Show notification for new summary
+        showNotification(`Content summary generated for: ${summaryEntry.title}`);
+        
+        // Update UI if modal is open
+        if (contentSummaryModal && contentSummaryModal.classList.contains('show')) {
+            updateSummaryDisplay();
+        }
+    });
+    
+    window.electronAPI.onSummaryHistoryCleared((event) => {
+        summaryHistory = [];
+        currentSummary = null;
+        updateSummaryDisplay();
     });
 }
 
@@ -1250,5 +1387,442 @@ function showDownloadNotification(download, type = 'started') {
             notification.remove();
         }
     }, 5000);
+}
+
+// Content Analysis Functions
+async function loadContentAnalysisHistory() {
+    try {
+        contentAnalysisHistory = await window.electronAPI.getContentAnalysisHistory();
+        updateContentAnalysisDisplay();
+    } catch (error) {
+        console.error('Error loading content analysis history:', error);
+    }
+}
+
+function updateContentAnalysisDisplay() {
+    const historyContainer = document.getElementById('contentAnalysisHistory');
+    const currentAnalysisContainer = document.getElementById('currentAnalysis');
+    
+    if (!historyContainer || !currentAnalysisContainer) {
+        console.error('Content analysis containers not found');
+        return;
+    }
+    
+    // Display current analysis if available
+    if (currentAnalysis) {
+        displayAnalysis(currentAnalysis, currentAnalysisContainer);
+    } else {
+        currentAnalysisContainer.innerHTML = '<p>No current analysis available</p>';
+    }
+    
+    // Display history
+    if (contentAnalysisHistory.length > 0) {
+        historyContainer.innerHTML = contentAnalysisHistory
+            .slice(0, 10) // Show only last 10 analyses
+            .map(entry => createHistoryItem(entry))
+            .join('');
+    } else {
+        historyContainer.innerHTML = '<p>No analysis history available</p>';
+    }
+}
+
+function displayAnalysis(analysisEntry, container) {
+    const { analysis, title, url, timestamp } = analysisEntry;
+    
+    container.innerHTML = `
+        <div class="analysis-header">
+            <h3>${title}</h3>
+            <p class="analysis-url">${url}</p>
+            <p class="analysis-time">${new Date(timestamp).toLocaleString()}</p>
+        </div>
+        
+        <div class="analysis-content">
+            
+            ${analysis.topics && analysis.topics.length > 0 ? `
+                <div class="analysis-section">
+                    <h4>🏷️ Topics</h4>
+                    <div class="topics-container">
+                        ${analysis.topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${analysis.bias ? `
+                <div class="analysis-section">
+                    <h4>🎯 Political Bias</h4>
+                    <div class="bias-analysis">
+                        <div class="bias-item ${analysis.bias.bias}">
+                            <span class="bias-label">Conservative:</span>
+                            <div class="bias-bar-fill" style="--fill-width: ${analysis.bias.scores.conservative}%"></div>
+                            <span class="bias-percentage">${analysis.bias.scores.conservative}%</span>
+                        </div>
+                        <div class="bias-item neutral">
+                            <span class="bias-label">Neutral:</span>
+                            <div class="bias-bar-fill" style="--fill-width: ${analysis.bias.scores.neutral}%"></div>
+                            <span class="bias-percentage">${analysis.bias.scores.neutral}%</span>
+                        </div>
+                        <div class="bias-item ${analysis.bias.bias}">
+                            <span class="bias-label">Liberal:</span>
+                            <div class="bias-bar-fill" style="--fill-width: ${analysis.bias.scores.liberal}%"></div>
+                            <span class="bias-percentage">${analysis.bias.scores.liberal}%</span>
+                        </div>
+                        <p class="bias-confidence">Confidence: ${analysis.bias.confidence}%</p>
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${analysis.emotionalTone ? `
+                <div class="analysis-section">
+                    <h4>😊 Emotional Tone</h4>
+                    <div class="tone-analysis">
+                        <div class="tone-item ${analysis.emotionalTone.tone}">
+                            <span class="tone-label">Positive:</span>
+                            <div class="tone-bar-fill" style="--fill-width: ${analysis.emotionalTone.scores.positive}%"></div>
+                            <span class="tone-percentage">${analysis.emotionalTone.scores.positive}%</span>
+                        </div>
+                        <div class="tone-item neutral">
+                            <span class="tone-label">Neutral:</span>
+                            <div class="tone-bar-fill" style="--fill-width: ${analysis.emotionalTone.scores.neutral}%"></div>
+                            <span class="tone-percentage">${analysis.emotionalTone.scores.neutral}%</span>
+                        </div>
+                        <div class="tone-item ${analysis.emotionalTone.tone}">
+                            <span class="tone-label">Negative:</span>
+                            <div class="tone-bar-fill" style="--fill-width: ${analysis.emotionalTone.scores.negative}%"></div>
+                            <span class="tone-percentage">${analysis.emotionalTone.scores.negative}%</span>
+                        </div>
+                        <p class="tone-confidence">Confidence: ${analysis.emotionalTone.confidence}%</p>
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${analysis.readability ? `
+                <div class="analysis-section">
+                    <h4>📖 Readability</h4>
+                    <div class="readability-container">
+                        <div class="readability-score">
+                            <div class="score-value">${analysis.readability.score}</div>
+                            <div class="score-category">${analysis.readability.level}</div>
+                        </div>
+                        <div class="readability-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Words:</span>
+                                <span class="detail-value">${analysis.readability.words}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Sentences:</span>
+                                <span class="detail-value">${analysis.readability.sentences}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Syllables:</span>
+                                <span class="detail-value">${analysis.readability.syllables}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function createHistoryItem(entry) {
+    const { analysis, title, url, timestamp } = entry;
+    const biasColor = analysis.bias ? `bias-${analysis.bias.bias}` : 'bias-neutral';
+    const toneColor = analysis.emotionalTone ? `tone-${analysis.emotionalTone.tone}` : 'tone-neutral';
+    
+    return `
+        <div class="history-item">
+            <div class="history-item-content">
+                <div class="history-item-title">${title}</div>
+                <div class="history-item-url">${url}</div>
+                <div class="history-item-meta">
+                    ${analysis.bias ? `
+                        <div class="history-item-bias">
+                            <span class="bias-indicator ${biasColor}"></span>
+                            ${analysis.bias.bias} (${analysis.bias.confidence}%)
+                        </div>
+                    ` : ''}
+                    ${analysis.emotionalTone ? `
+                        <div class="history-item-tone">
+                            <span class="tone-indicator ${toneColor}"></span>
+                            ${analysis.emotionalTone.tone} (${analysis.emotionalTone.confidence}%)
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="history-item-time">
+                ${new Date(timestamp).toLocaleDateString()}
+            </div>
+        </div>
+    `;
+}
+
+async function clearContentAnalysisHistory() {
+    try {
+        await window.electronAPI.clearContentAnalysisHistory();
+        showNotification('Content analysis history cleared');
+    } catch (error) {
+        console.error('Error clearing content analysis history:', error);
+    }
+}
+
+async function analyzeCurrentPage() {
+    try {
+        const result = await window.electronAPI.analyzeCurrentPage(activeTabId);
+        if (result.success) {
+            showNotification('Content analysis started');
+        } else {
+            showNotification('Failed to start content analysis');
+        }
+    } catch (error) {
+        console.error('Error starting content analysis:', error);
+        showNotification('Error starting content analysis');
+    }
+}
+
+// Content Summary and Voice Reading Functions
+function setupVoiceControls() {
+    // Initialize speech synthesis
+    if ('speechSynthesis' in window) {
+        speechSynthesis = window.speechSynthesis;
+    }
+    
+    // Voice speed control
+    const voiceSpeed = document.getElementById('voiceSpeed');
+    const speedValue = document.getElementById('speedValue');
+    if (voiceSpeed && speedValue) {
+        voiceSpeed.addEventListener('input', (e) => {
+            const value = e.target.value;
+            speedValue.textContent = value + 'x';
+        });
+    }
+    
+    // Voice pitch control
+    const voicePitch = document.getElementById('voicePitch');
+    const pitchValue = document.getElementById('pitchValue');
+    if (voicePitch && pitchValue) {
+        voicePitch.addEventListener('input', (e) => {
+            const value = e.target.value;
+            pitchValue.textContent = value + 'x';
+        });
+    }
+    
+    // Voice volume control
+    const voiceVolume = document.getElementById('voiceVolume');
+    const volumeValue = document.getElementById('volumeValue');
+    if (voiceVolume && volumeValue) {
+        voiceVolume.addEventListener('input', (e) => {
+            const value = e.target.value;
+            volumeValue.textContent = Math.round(value * 100) + '%';
+        });
+    }
+}
+
+async function loadSummaryHistory() {
+    try {
+        summaryHistory = await window.electronAPI.getSummaryHistory();
+        updateSummaryDisplay();
+    } catch (error) {
+        console.error('Error loading summary history:', error);
+    }
+}
+
+function updateSummaryDisplay() {
+    const currentSummaryContainer = document.getElementById('currentSummary');
+    const summaryHistoryContainer = document.getElementById('summaryHistory');
+    
+    if (!currentSummaryContainer || !summaryHistoryContainer) {
+        console.error('Summary containers not found');
+        return;
+    }
+    
+    // Display current summary if available
+    if (currentSummary) {
+        displaySummary(currentSummary, currentSummaryContainer);
+    } else {
+        currentSummaryContainer.innerHTML = '<p>No summary available. Click "Generate Summary" to start.</p>';
+    }
+    
+    // Display history
+    if (summaryHistory.length > 0) {
+        summaryHistoryContainer.innerHTML = summaryHistory
+            .slice(0, 10) // Show only last 10 summaries
+            .map(entry => createSummaryHistoryItem(entry))
+            .join('');
+    } else {
+        summaryHistoryContainer.innerHTML = '<p>No summary history available.</p>';
+    }
+}
+
+function displaySummary(summaryEntry, container) {
+    const { summary, title, url, timestamp, readingTime, keyPoints } = summaryEntry;
+    
+    container.innerHTML = `
+        <div class="summary-header">
+            <h4>${title}</h4>
+            <p class="summary-url">${url}</p>
+            <p class="summary-time">${new Date(timestamp).toLocaleString()}</p>
+        </div>
+        
+        <div class="summary-content">
+            ${summary ? `
+                <div class="summary-section">
+                    <h5>📝 Summary</h5>
+                    <div class="summary-text">${summary}</div>
+                </div>
+            ` : ''}
+            
+            ${readingTime ? `
+                <div class="summary-section">
+                    <h5>⏱️ Reading Time</h5>
+                    <div class="reading-time">
+                        <span class="reading-time-icon">⏱️</span>
+                        <span class="reading-time-text">${readingTime}</span>
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${keyPoints && keyPoints.length > 0 ? `
+                <div class="summary-section">
+                    <h5>🔑 Key Points</h5>
+                    <div class="key-points-container">
+                        ${keyPoints.map(point => `<div class="key-point">• ${point}</div>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function createSummaryHistoryItem(entry) {
+    const { title, url, timestamp, readingTime } = entry;
+    
+    return `
+        <div class="summary-history-item">
+            <div class="summary-history-content">
+                <div class="summary-history-title">${title}</div>
+                <div class="summary-history-url">${url}</div>
+                <div class="summary-history-meta">
+                    ${readingTime ? `<span class="reading-time">⏱️ ${readingTime}</span>` : ''}
+                </div>
+            </div>
+            <div class="summary-history-time">
+                ${new Date(timestamp).toLocaleDateString()}
+            </div>
+        </div>
+    `;
+}
+
+async function generateContentSummary() {
+    try {
+        const result = await window.electronAPI.generateContentSummary(activeTabId);
+        if (result.success) {
+            showNotification('Content summary generated');
+            currentSummary = result.summary;
+            summaryHistory.unshift(result.summary);
+            updateSummaryDisplay();
+        } else {
+            showNotification('Failed to generate content summary');
+        }
+    } catch (error) {
+        console.error('Error generating content summary:', error);
+        showNotification('Error generating content summary');
+    }
+}
+
+function startVoiceReading() {
+    if (!speechSynthesis || !currentSummary) {
+        showNotification('No content available to read');
+        return;
+    }
+    
+    if (isReading) {
+        stopVoiceReading();
+        return;
+    }
+    
+    const text = currentSummary.summary || currentSummary.keyPoints?.join('. ') || 'No content to read';
+    
+    // Stop any existing speech
+    speechSynthesis.cancel();
+    
+    // Create new utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Get voice settings
+    const speed = document.getElementById('voiceSpeed')?.value || 1;
+    const pitch = document.getElementById('voicePitch')?.value || 1;
+    const volume = document.getElementById('voiceVolume')?.value || 0.8;
+    
+    utterance.rate = parseFloat(speed);
+    utterance.pitch = parseFloat(pitch);
+    utterance.volume = parseFloat(volume);
+    
+    // Get available voices and select a good one
+    const voices = speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+        voice.lang.includes('en') && voice.name.includes('Female')
+    ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+    
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
+    
+    // Event handlers
+    utterance.onstart = () => {
+        isReading = true;
+        showNotification('Started reading content');
+        updateReadingButton();
+    };
+    
+    utterance.onend = () => {
+        isReading = false;
+        showNotification('Finished reading content');
+        updateReadingButton();
+    };
+    
+    utterance.onerror = (event) => {
+        isReading = false;
+        console.error('Speech synthesis error:', event);
+        showNotification('Error reading content');
+        updateReadingButton();
+    };
+    
+    // Start reading
+    speechSynthesis.speak(utterance);
+    updateReadingButton();
+}
+
+function stopVoiceReading() {
+    if (speechSynthesis) {
+        speechSynthesis.cancel();
+        isReading = false;
+        showNotification('Stopped reading');
+        updateReadingButton();
+    }
+}
+
+function updateReadingButton() {
+    const startButton = document.querySelector('button[onclick="startVoiceReading()"]');
+    if (startButton) {
+        if (isReading) {
+            startButton.textContent = '⏸️ Pause Reading';
+            startButton.onclick = stopVoiceReading;
+        } else {
+            startButton.textContent = '🔊 Start Reading';
+            startButton.onclick = startVoiceReading;
+        }
+    }
+}
+
+async function clearSummaryHistory() {
+    try {
+        await window.electronAPI.clearSummaryHistory();
+        showNotification('Summary history cleared');
+        summaryHistory = [];
+        currentSummary = null;
+        updateSummaryDisplay();
+    } catch (error) {
+        console.error('Error clearing summary history:', error);
+    }
 }
 

@@ -1,23 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Simple Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test</title>
     <style>
         body {
-            background: #4CAF50;
-            color: white;
             font-family: Arial, sans-serif;
-            margin: 0;
+            max-width: 600px;
+            margin: 50px auto;
             padding: 20px;
-            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         h1 {
-            font-size: 2em;
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        .test-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .test-links a {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .test-links a:hover {
+            background-color: #0056b3;
+        }
+        .instructions {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
         }
     </style>
 </head>
 <body>
-    <h1>Webview Test</h1>
-    <p>If you see this green page, the webview is working!</p>
+    <div class="container">
+        <h1>🚀 Navigation Test Page</h1>
+        
+        <div class="test-section success">
+            <h3>✅ Success!</h3>
+            <p>If you can see this page, the browser navigation is working correctly.</p>
+        </div>
+
+        <div class="test-section info">
+            <h3>📋 Test Instructions</h3>
+            <p>To test navigation functionality:</p>
+            <ol>
+                <li>Type a URL in the address bar (e.g., "google.com") and press Enter</li>
+                <li>Try typing "test search" to see search functionality</li>
+                <li>Click the test links below</li>
+                <li>Use the back/forward buttons</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Test Links</h3>
+            <p>Click these links to test navigation:</p>
+            <div class="test-links">
+                <a href="https://www.google.com">Google</a>
+                <a href="https://www.github.com">GitHub</a>
+                <a href="https://www.wikipedia.org">Wikipedia</a>
+            </div>
+        </div>
+
+        <div class="test-section instructions">
+            <h3>🎯 Address Bar Test</h3>
+            <p>Try typing these in the address bar:</p>
+            <ul>
+                <li><strong>google.com</strong> - Should navigate to Google</li>
+                <li><strong>test search</strong> - Should search Google</li>
+                <li><strong>https://www.example.com</strong> - Should navigate to example.com</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Technical Details</h3>
+            <p><strong>Current URL:</strong> <span id="current-url">Loading...</span></p>
+            <p><strong>Page Load Time:</strong> <span id="load-time">Loading...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Display technical information
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('load-time').textContent = new Date().toLocaleTimeString();
+        
+        console.log('Navigation test page loaded successfully!');
+    </script>
 </body>
 </html> 
