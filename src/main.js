@@ -48,9 +48,9 @@ process.on('unhandledRejection', (reason, promise) => {
 // Missing utility functions
 function getStoreValue(key, defaultValue = null) {
   try {
-    return store.get(key, defaultValue);
+    return getStoreValue(key, defaultValue);
   } catch (error) {
-    logError('GET_STORE_VALUE', error, { key, defaultValue });
+    console.error('Error getting store value:', error);
     return defaultValue;
   }
 }
@@ -65,203 +65,41 @@ function analyzeContent(content, options = {}) {
   }
 }
 
+// Missing utility functions
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
-
 
 // Missing utility functions
-function getStoreValue(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in getStoreValue:', error);
-    return defaultValue;
-  }
-}
-
-
-// Missing utility functions
-function analyzeContent(key, defaultValue = null) {
-  try {
-    return store.get(key, defaultValue);
-  } catch (error) {
-    console.error('Error in analyzeContent:', error);
-    return defaultValue;
-  }
-}
 
 const store = new Store({
   defaults: {
@@ -293,10 +131,10 @@ let nextDownloadId = 1;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: store.get('window.width'),
-    height: store.get('window.height'),
-    x: store.get('window.x'),
-    y: store.get('window.y'),
+    width: getStoreValue('window.width'),
+    height: getStoreValue('window.height'),
+    x: getStoreValue('window.x'),
+    y: getStoreValue('window.y'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -452,14 +290,18 @@ function closeTab(tabId) {
 function switchToTab(tabId) {
   const tab = tabs.find(t => t.id === tabId);
   if (!tab || !tab.browserView) {
-    logError('SWITCH_TAB', new Error(`Tab ${tabId} not found or has no browserView`));
+    console.error('Tab not found or has no browserView:', tabId);
     return;
   }
   
   try {
     // Check if browserView is destroyed
-    if (tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed && tab.browserView.isDestroyed()) {
-      logError('SWITCH_TAB', new Error(`BrowserView for tab ${tabId} is destroyed`));
+    const isDestroyed = typeof tab.browserView.isDestroyed === 'function' 
+      ? tab.browserView.isDestroyed() 
+      : tab.browserView.isDestroyed;
+    
+    if (isDestroyed) {
+      console.error('BrowserView is destroyed for tab:', tabId);
       return;
     }
     
@@ -470,9 +312,8 @@ function switchToTab(tabId) {
     updateBrowserViewBounds(tab.browserView);
     mainWindow.setBrowserView(tab.browserView);
     notifyTabList();
-    logInfo('SWITCH_TAB', `Successfully switched to tab ${tabId}`);
   } catch (error) {
-    logError('SWITCH_TAB', error, { tabId });
+    console.error('Error switching to tab:', error);
   }
 }
 
@@ -485,8 +326,14 @@ function updateTabMeta(tabId, url, title) {
     if (title) tab.title = title;
     else {
       const webContents = tab.browserView.webContents;
-      if (webContents && !webContents.isDestroyed()) {
-        tab.title = webContents.getTitle() || 'New Tab';
+      if (webContents) {
+        const isDestroyed = typeof webContents.isDestroyed === 'function' 
+          ? webContents.isDestroyed() 
+          : webContents.isDestroyed;
+        
+        if (!isDestroyed) {
+          tab.title = webContents.getTitle() || 'New Tab';
+        }
       }
     }
     notifyTabList();
@@ -1090,7 +937,7 @@ function setupIPCHandlers() {
         return { success: false, error: 'BrowserView not found' };
       }
       const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
-        ? tab.browserView.isDestroyed()
+        ? (typeof tab.browserView.isDestroyed === 'function' ? (typeof tab.browserView.isDestroyed === 'function' ? tab.browserView.isDestroyed() : tab.browserView.isDestroyed) : tab.browserView.isDestroyed)
         : tab.browserView.isDestroyed;
       if (isDestroyed) {
         return { success: false, error: 'BrowserView is destroyed' };
@@ -1128,7 +975,7 @@ function setupIPCHandlers() {
         return { success: false, error: 'BrowserView not found' };
       }
       const isDestroyed = typeof tab.browserView.isDestroyed === 'function'
-        ? tab.browserView.isDestroyed()
+        ? (typeof tab.browserView.isDestroyed === 'function' ? (typeof tab.browserView.isDestroyed === 'function' ? tab.browserView.isDestroyed() : tab.browserView.isDestroyed) : tab.browserView.isDestroyed)
         : tab.browserView.isDestroyed;
       if (isDestroyed) {
         return { success: false, error: 'BrowserView is destroyed' };
@@ -1203,7 +1050,7 @@ function reorderTabs(newTabIds) {
 }
 
 function setupPrivacySession() {
-  const privacySettings = store.get('privacy');
+  const privacySettings = getStoreValue('privacy');
   
   // Enhanced privacy session setup - block tracking while preserving functionality
   if (privacySettings.blockTrackers || privacySettings.blockAds) {
@@ -1496,7 +1343,7 @@ app.on('browser-window-resized', () => {
 });
 
 function addBookmark(bookmark) {
-  const bookmarks = store.get('bookmarks', []);
+  const bookmarks = getStoreValue('bookmarks', []);
   const newBookmark = {
     id: Date.now(),
     title: bookmark.title,
@@ -1509,14 +1356,14 @@ function addBookmark(bookmark) {
 }
 
 function removeBookmark(bookmarkId) {
-  const bookmarks = store.get('bookmarks', []);
+  const bookmarks = getStoreValue('bookmarks', []);
   const filteredBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
   store.set('bookmarks', filteredBookmarks);
   mainWindow.webContents.send('bookmarks-updated', filteredBookmarks);
 }
 
 function getBookmarks() {
-  return store.get('bookmarks', []);
+  return getStoreValue('bookmarks', []);
 }
 
 function injectPrivacyScripts(webContents) {
